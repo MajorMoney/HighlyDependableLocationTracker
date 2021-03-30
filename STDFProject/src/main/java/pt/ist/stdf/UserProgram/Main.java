@@ -17,7 +17,7 @@ public class Main {
 	private static final int GRID_X = 100;
 	private static final int GRID_Y = 100;
 	private static final int BLUETOOTH_RANGE = 3;
-	private static final int BLUETOOTH_PORT = 696969; 
+	private static final int BLUETOOTH_PORT = 8080; 
 		
 	private static GridLocation initPosition() {
 		
@@ -33,11 +33,12 @@ public class Main {
 				
 	}
 	
-	private static SimpleUser initSimpleUser(int serverPort, String serverHost) {
+	private static SimpleUser initSimpleUser(int serverPort, String serverHost, int testUserPort) {
 		
-		User user;
+		//User user;
 		GridLocation loc = initPosition();
-		BluetoothSimulation bltth = new BluetoothSimulation(BLUETOOTH_RANGE, convertPosToBluetoothPort(loc));
+		//estamos a atribuir os portos estaticamente ,for testing purposes
+		BluetoothSimulation bltth = new BluetoothSimulation(BLUETOOTH_RANGE, /*convertPosToBluetoothPort(loc)*/testUserPort,GRID_X);
 		
 		return new SimpleUser(serverHost, serverPort, loc, bltth);
 	}
@@ -68,13 +69,15 @@ public class Main {
     	
 		final String serverHost = args[1];
 		final int serverPort = Integer.parseInt(args[1]);
+		final int testUserPort = Integer.parseInt(args[3]);
 			
 	    if(args[0].equals(SIMPLE_USER)) {
 	    	SimpleUser user;
 
-	    	user = initSimpleUser(serverPort, serverHost);
-	    		
-	    	//emulate user movement and other actions
+	    	user = initSimpleUser(serverPort, serverHost ,testUserPort);
+	    	//emulate user movement and other actions	
+	    	user.testSomething();
+	    	
 	    		
 	    }else if(args[0].equals(HR_USER)) {
 	    
