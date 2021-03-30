@@ -154,6 +154,7 @@ public class BluetoothSimulation implements Bluetooth {
 		}
 	}
 
+	//Checka se está na range
 	private boolean checkPosition(int position, int srcPort) {
 		if (position == srcPort) {
 			for (int i = port - (range * gridX); i <= port + (range * gridX); i += gridX) {
@@ -167,6 +168,8 @@ public class BluetoothSimulation implements Bluetooth {
 		return false;
 	}
 
+	//Vai dar handle ás responses, vai precisar de uma pool/threads personalizadas
+	//Tem que iplementar timeout, e serem concorrentes para dar os apends
 	private void LocationProofHandler() {
 
 	}
