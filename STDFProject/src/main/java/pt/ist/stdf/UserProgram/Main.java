@@ -70,13 +70,16 @@ public class Main {
 		final String serverHost = args[1];
 		final int serverPort = Integer.parseInt(args[1]);
 		final int testUserPort = Integer.parseInt(args[3]);
-			
+		
 	    if(args[0].equals(SIMPLE_USER)) {
 	    	SimpleUser user;
 
 	    	user = initSimpleUser(serverPort, serverHost ,testUserPort);
 	    	//emulate user movement and other actions	
+	    	//if u wanna test clients
 	    	user.testSomething();
+	    	//if u wanna test the server
+	    	user.testSomethingWithServer();
 	    	
 	    		
 	    }else if(args[0].equals(HR_USER)) {
