@@ -12,11 +12,21 @@ public abstract class User {
 		this.serverHost=serverHost;
 		this.serverPort = serverPort;
 		connectServer();
+		getIdFromServer();
+	}
+	
+	protected int getId() {
+		return id;
 	}
 	
 	private void connectServer() {
 		
 	}
+	
+	private void getIdFromServer() {
+		this.id=(int)(Math.random()*100);
+	}
+
 	
 	public String getServerIp() {
 		return serverHost;

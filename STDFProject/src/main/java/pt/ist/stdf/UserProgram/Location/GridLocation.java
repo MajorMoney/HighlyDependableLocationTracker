@@ -1,15 +1,15 @@
 package pt.ist.stdf.UserProgram.Location;
 
-import java.awt.Point;
-
 public class GridLocation implements Location{
 	
-	int x;
-	int y;
+	private int x;
+	private int y;
+	private StringBuilder outputLocation;
 	
 	public GridLocation(int x, int y) {
 		this.x=x;
 		this.y=y;
+		this.outputLocation = new StringBuilder();
 	}
 	
 	public int getX() {
@@ -19,9 +19,25 @@ public class GridLocation implements Location{
 	public int getY() {
 		return y;
 	}
+	
+	public void setPosition(int x, int y) {
+		this.x=x;
+		this.y=y;
+	}
 
 	public String getCurrentLocation() {
-		return null;
+		outputLocation.setLength(0);
+		outputLocation.append("X:");
+		outputLocation.append(this.x);
+		outputLocation.append(" Y:");
+		outputLocation.append(this.y);
+		return outputLocation.toString();
+		
 	}
+	
+//	public static void main (String args[]) {
+//		GridLocation teste = new GridLocation(3,3);
+//		System.out.println(teste.getCurrentLocation());
+//	}
 
 }

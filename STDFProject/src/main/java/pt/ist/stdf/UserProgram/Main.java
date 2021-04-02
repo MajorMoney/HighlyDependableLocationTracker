@@ -38,7 +38,7 @@ public class Main {
 		//User user;
 		GridLocation loc = initPosition();
 		//estamos a atribuir os portos estaticamente ,for testing purposes
-		BluetoothSimulation bltth = new BluetoothSimulation(BLUETOOTH_RANGE, /*convertPosToBluetoothPort(loc)*/testUserPort,GRID_X);
+		BluetoothSimulation bltth = new BluetoothSimulation(BLUETOOTH_RANGE, testUserPort, BLUETOOTH_PORT,GRID_X, GRID_Y);
 		
 		return new SimpleUser(serverHost, serverPort, loc, bltth);
 	}
@@ -77,9 +77,9 @@ public class Main {
 	    	user = initSimpleUser(serverPort, serverHost ,testUserPort);
 	    	//emulate user movement and other actions	
 	    	//if u wanna test clients
-	    	user.testSomething();
-	    	//if u wanna test the server
-	    	user.testSomethingWithServer();
+//	    	user.testSomething();
+//	    	//if u wanna test the server
+//	    	user.testSomethingWithServer();
 	    	
 	    		
 	    }else if(args[0].equals(HR_USER)) {

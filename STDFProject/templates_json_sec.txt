@@ -1,0 +1,52 @@
+-> length + ...
+
+submitLocationReport
+{
+userId,
+msgType,
+msgData{
+	epoch,	
+	position,
+	num_reports,
+	reports {
+		msg, msg, msg}}
+}
+
+
+
+//////////////////////Messages between users//////////////////////
+
+
+{
+msgType,//0:Request for validation//1:Response to validation
+userId,
+msgData{
+	(...)
+}
+
+
+------------------------>Request Message<------------------------
+{
+
+msgType:0,
+userId,
+msgData{
+	time,
+	position
+}
+------------------------------------------------------------------
+
+------------------------>Response Message<------------------------
+{
+
+msgType:1,
+userId,
+msgData{
+	singature,
+}
+
+------------------------------------------------------------------
+
+
+
+//////////////////////////////////////////////////////////////////
