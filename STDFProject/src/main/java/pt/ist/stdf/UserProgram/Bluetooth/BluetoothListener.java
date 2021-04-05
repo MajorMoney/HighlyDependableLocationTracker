@@ -24,9 +24,17 @@ public class BluetoothListener extends Thread {
 		this.messages = messages;
 	}
 
-	public void changeSocket(DatagramSocket socket) {
-		this.socket = socket;
-	}
+	public synchronized void changeSocket(DatagramSocket socket) {
+        this.socket = socket;
+        notify();
+        if (socket==null) {
+            try {
+                wait(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 	
 	//Listens for Bluetooth messages
 	@Override
@@ -36,20 +44,25 @@ public class BluetoothListener extends Thread {
 		while(true) {
 			DatagramPacket clientPacket = new DatagramPacket(buf, buf.length);
 			try {
-				socket.receive(clientPacket);
-				packetText = new String(clientPacket.getData(), 0, clientPacket.getLength());
-				JsonElement jsonTree = JsonParser.parseString(packetText).getAsJsonObject();
-				if (jsonTree.isJsonObject()) {
-					JsonObject msg = jsonTree.getAsJsonObject();
-					msg.addProperty("senderPort", clientPacket.getPort());
-					messages.put(msg);
-				}
-				
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+                socket.receive(clientPacket);
+                packetText = new String(clientPacket.getData(), 0, clientPacket.getLength());
+                JsonElement jsonTree = JsonParser.parseString(packetText).getAsJsonObject();
+                if (jsonTree.isJsonObject()) {
+                    JsonObject msg = jsonTree.getAsJsonObject();
+                    msg.addProperty("senderPort", clientPacket.getPort());
+                    messages.put(msg);
+                }
+
+            } catch (IOException e) {
+                changeSocket(null);
+                System.out.println("wakeup");
+                if(socket==null) {
+                    System.out.println("ERROR ON BLUETOOTH");
+                    return;
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 		}
 	}
 

@@ -1,4 +1,4 @@
-package pt.ist.stdf.UserProgram.User;
+package pt.ist.stdf.ServerProgram.HandleClient;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -6,60 +6,58 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import com.google.gson.JsonObject;
 
+import pt.ist.stdf.ServerProgram.Server;
 import pt.ist.stdf.UserProgram.Bluetooth.Bluetooth;
+import pt.ist.stdf.UserProgram.User.SimpleUser;
 
-public class SimpleUserMessageHandler extends Thread{
-	
-	private final int REQUEST_VALDATION = 0;
-	private final int RESPONSE_TO_VALIDATION = 1;
-	
-	private SimpleUser user;
-	private Bluetooth bltth;
+public class ServerMessageHandler extends Thread {
+
+	// Mudar os códigos das msgs
+//	private final int REQUEST_VALDATION = 0;
+//	private final int RESPONSE_TO_VALIDATION = 1;
+
+	private Server server;
 	private ThreadPoolExecutor workers;
 	private LinkedBlockingQueue<JsonObject> messages;
-	
-	public SimpleUserMessageHandler(SimpleUser user, Bluetooth bltth) {
-		this.user=user;
-		this.bltth=bltth;
-		
-		messages= new LinkedBlockingQueue<JsonObject>() ;
-		this.bltth.configureListner(messages);
-		setUpWorkers();	
+
+	public ServerMessageHandler(Server server, LinkedBlockingQueue<JsonObject> messages) {
+		this.server = server;
+		this.messages = messages;
+		setUpWorkers();
 	}
-	
+
 	private void setUpWorkers() {
 		workers = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 		workers.setCorePoolSize(1);
 		workers.setMaximumPoolSize(5);
-	}	
-	
+	}
+
 	private synchronized void handleMessage(JsonObject msg) {
 		int msgType;
-		msgType=msg.get("msgType").getAsInt();
-		if(msgType==REQUEST_VALDATION) {
-			System.out.println("Thread: "+Thread.currentThread()+" will respond Location Proof");
+		msgType = msg.get("msgType").getAsInt();
+		if (msgType == 1) {
 			Runnable task = () -> {
-				user.respondLocationProof(msg);
+				//CHAMAR HANDLER
+				//server.HandleX(msg)
 			};
 			workers.execute(task);
-			
-		}else if(msgType==RESPONSE_TO_VALIDATION) {
+		} else if (msgType == 2) {
 			Runnable task = () -> {
-				user.hadleResponseMessage(msg);
+				//CHAMAR HANDLER
 			};
 			workers.execute(task);
 		}
 	}
-	
-	public void run(){
-		
-		while(true) {
+
+	public void run() {
+
+		while (true) {
 			try {
 				JsonObject msg = messages.take();
 				handleMessage(msg);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}	
+			}
 		}
 	}
 

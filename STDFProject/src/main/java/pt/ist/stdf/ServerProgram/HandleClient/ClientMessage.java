@@ -21,8 +21,8 @@ public class ClientMessage {
 	 * Um clientMessageType por tipo de mensagem 
 	 * */
 	public enum ClientMessageTypes {
-		submitLocationReport(0), obtainLocationReport(1), obtainUserAtLocation(2),
-		userReport(3);
+		REPORT_SUBMISSION(3), obtainLocationReport(1), obtainUserAtLocation(2),
+		userReport(0);
 
 		private final int value;
 
@@ -38,7 +38,7 @@ public class ClientMessage {
 		public static ClientMessageTypes getMessageTypeByInt(int val) {
 			switch (val) {
 			case 0:
-				return ClientMessageTypes.submitLocationReport;
+				return ClientMessageTypes.REPORT_SUBMISSION;
 			case 1:
 				return ClientMessageTypes.obtainLocationReport;
 			case 2:
@@ -67,31 +67,31 @@ public class ClientMessage {
 	 * reader.setLenient(true) é necessario porque senao ele tenta ler espaços vazios
 	 * */
 	private void readMessage() {
-		String s = new String(buffer, StandardCharsets.UTF_8);
-		System.out.println("Received: "+s);
-		Gson gson = new Gson();
-		JsonReader reader = new JsonReader(new StringReader(s));
-		reader.setLenient(true);
-		JsonElement tree = gson.fromJson(reader, JsonElement.class);
-		//JsonElement tree = JsonParser.parseString(s).getAsJsonObject();
-		if (tree.isJsonObject()) {
-			JsonObject msg = tree.getAsJsonObject();
-			userId = msg.get("userId").getAsInt();
-			msgType = ClientMessageTypes.getMessageTypeByInt(msg.get("msgType").getAsInt());
-			if (msgType != null) {
-
-				JsonObject msgData = msg.get("msgData").getAsJsonObject();
-				handleMessageData(msgType, msgData);
-
-			}
-
-		}
+//		String s = new String(buffer, StandardCharsets.UTF_8);
+//		System.out.println("Received: "+s);
+//		Gson gson = new Gson();
+//		JsonReader reader = new JsonReader(new StringReader(s));
+//		reader.setLenient(true);
+//		JsonElement tree = gson.fromJson(reader, JsonElement.class);
+//		//JsonElement tree = JsonParser.parseString(s).getAsJsonObject();
+//		if (tree.isJsonObject()) {
+//			JsonObject msg = tree.getAsJsonObject();
+//			userId = msg.get("userId").getAsInt();
+//			msgType = ClientMessageTypes.getMessageTypeByInt(msg.get("msgType").getAsInt());
+//			if (msgType != null) {
+//
+//				JsonObject msgData = msg.get("msgData").getAsJsonObject();
+//				handleMessageData(msgType, msgData);
+//
+//			}
+//
+//		}
 	}
 	
 	Position position;
 	private void handleMessageData(ClientMessageTypes type, JsonObject msgData) {
 		switch(type) {
-		case submitLocationReport:
+		case REPORT_SUBMISSION:
 		{
 			epoch = msgData.get("epoch").getAsInt();
 			position = new Position(msgData.get("position").getAsJsonArray());

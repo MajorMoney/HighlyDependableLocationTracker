@@ -1,6 +1,6 @@
 package pt.ist.stdf.ServerProgram;
 
-import pt.ist.stdf.ServerProgram.HandleClient.Client;
+import pt.ist.stdf.ServerProgram.HandleClient.ClientConnection;
 
 public class Epoch {
 
@@ -11,15 +11,15 @@ public class Epoch {
 	public Epoch(int id) {
 		grid = new ServerGrid();
 	}
-	public Position getClientPosition(Client client)
+	public Position getClientPosition(ClientConnection clientConnection)
 	{
-		Position pos = grid.getClientPosition(client);
+		Position pos = grid.getClientPosition(clientConnection);
 		return pos;
 		
 	}
-	public void AddClient(Position position, Client client)
+	public void AddClient(Position position, ClientConnection clientConnection)
 	{
-		grid.AddClientToGrid(position, client);
+		grid.AddClientToGrid(position, clientConnection);
 	}
 
 }

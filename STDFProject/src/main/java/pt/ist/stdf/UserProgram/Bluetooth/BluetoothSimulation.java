@@ -32,10 +32,9 @@ public class BluetoothSimulation implements Bluetooth {
 	private int limitX;
 	private int limitY;
 	
+	private BluetoothListener listener;
 	private DatagramSocket socket;
 	private InetAddress localHost;
-	private Executor mailer;
-	private ThreadPoolExecutor RequestPool;
 
 	public BluetoothSimulation(int range, int port, int basePort, int limitX, int limitY) {
 		this.range = range;
@@ -68,21 +67,18 @@ public class BluetoothSimulation implements Bluetooth {
 
 	private void openBluetoothConection(LinkedBlockingQueue messages) {
 
-		BluetoothListener listener = new BluetoothListener(socket, BUFFER_SIZE, messages);
-		listener.start();
-		
-	}
+        this.listener = new BluetoothListener(socket, BUFFER_SIZE, messages);
+        this.listener.start();
+
+    }
 	
 	public void changePort(int port) {
-		this.port = port;
-		//close socket
-		//avisar BL
-		openSocket(port);
-		//passar nova socket ao BL
-	}
+        this.port = port;
+        this.socket.close();
+        openSocket(port);
+        this.listener.changeSocket(this.socket);
+    }
 	
-//	String jsonString = "{" + "\"user\":\"User1\"," + "\"msgType\":\"LocationProofRequest\"," + "\"msgData\":{"
-//	+ "\"epoch\":\"teste\"," + "\"position\":\"" + port + "\"" + "}," + "\"apends\":\"[]\"" + "}";
 	public void sendBroadcastToNearby(String msg) throws IOException {
 		byte[] clientBuffer = msg.getBytes();
 		int sendPort;

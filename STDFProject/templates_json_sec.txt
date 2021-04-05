@@ -3,11 +3,11 @@
 submitLocationReport
 {
 userId,
-msgType,
+msgType,//2:Report Submission
 msgData{
 	epoch,	
 	position,
-	num_reports,
+	num_reports,//maybe nt needed
 	reports {
 		msg, msg, msg}}
 }
@@ -34,6 +34,7 @@ msgData{
 	time,
 	position
 }
+reports[]
 ------------------------------------------------------------------
 
 ------------------------>Response Message<------------------------
