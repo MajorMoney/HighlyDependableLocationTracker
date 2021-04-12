@@ -11,7 +11,7 @@ import pt.ist.stdf.ServerProgram.HandleClient.ClientConnection;
 import java.io.*;
 
 public class Server {
-
+ 
 	public static int PORT = 8888;
 	public static HashMap<Integer, ClientConnection> clientConnections = new HashMap<Integer, ClientConnection>();
 	public static ServerSocket serverSocket;

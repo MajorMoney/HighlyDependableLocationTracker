@@ -3,7 +3,6 @@ package pt.ist.stdf.Simulation;
 import pt.ist.stdf.UserProgram.Bluetooth.Bluetooth;
 import pt.ist.stdf.UserProgram.Bluetooth.BluetoothSimulation;
 import pt.ist.stdf.UserProgram.Location.GridLocation;
-import pt.ist.stdf.UserProgram.Location.Location;
 import pt.ist.stdf.UserProgram.User.SimpleUser;
 
 public class ArtificialSimpleUser extends SimpleUser{
@@ -12,6 +11,7 @@ public class ArtificialSimpleUser extends SimpleUser{
 
 	public ArtificialSimpleUser(String serverHost, int serverPort, GridLocation loc, Bluetooth bltth, int numEpochToSimulate) {
 		super(serverHost, serverPort, loc, bltth);
+		System.out.println("Init user");
 		this.numEpochToSimulate = numEpochToSimulate;
 	}
 	
