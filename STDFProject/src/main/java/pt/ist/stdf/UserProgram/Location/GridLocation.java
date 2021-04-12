@@ -1,5 +1,7 @@
 package pt.ist.stdf.UserProgram.Location;
 
+import com.google.gson.JsonArray;
+
 public class GridLocation implements Location{
 	
 	private int x;
@@ -32,6 +34,13 @@ public class GridLocation implements Location{
 		outputLocation.append(" Y:");
 		outputLocation.append(this.y);
 		return outputLocation.toString();
+		
+	}
+	public JsonArray getCurrentLocationAsJsonArray() {
+		JsonArray jsonArray = new JsonArray();
+		jsonArray.add(this.x);
+		jsonArray.add(this.y);
+		return jsonArray;
 		
 	}
 	

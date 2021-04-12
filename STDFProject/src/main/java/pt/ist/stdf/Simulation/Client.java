@@ -1,4 +1,4 @@
-package pt.ist.stdf.ServerProgram.database;
+package pt.ist.stdf.Simulation;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,9 +22,10 @@ public class Client {
 @Id
 @Column(name ="client_id")
 @GeneratedValue(strategy = GenerationType.AUTO)
-private Integer id;
+private Integer client_id;
 
 private String publicKey;
+private String sharedKey;
 /**
 @ManyToMany(cascade = CascadeType.ALL)
 @JoinTable(
@@ -34,16 +35,26 @@ private String publicKey;
 		)
 Set<Epoch> epochs= new HashSet<>();**/
 
-private Set<ClientEpoch> clientEpochs = new HashSet<>();
+
+@OneToMany(mappedBy = "primaryKey.client",
+cascade = CascadeType.ALL)
+private Set<ClientEpoch> clientEpochs = new HashSet<ClientEpoch>();
 
 
 public Client() {
 	
 }
-public Client(String priv, String pub) {
+public Client(String sharedKey, String pub) {
 	this.publicKey=pub;
+	this.sharedKey=sharedKey;
 }
 
+public String getSharedKey() {
+	return sharedKey;
+}
+public void setSharedKey(String sharedKey) {
+	this.sharedKey = sharedKey;
+}
 public String getPublicKey() {
 	return publicKey;
 }
@@ -51,12 +62,10 @@ public void setPublicKey(String publicKey) {
 	this.publicKey = publicKey;
 }
 public Integer getId() {
-	return id;
+	return client_id;
 }
 
 
-@OneToMany(mappedBy = "primaryKey.client",
-cascade = CascadeType.ALL)
 public Set<ClientEpoch> getClientEpochs() {
 	return clientEpochs;
 }

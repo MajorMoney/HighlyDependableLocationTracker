@@ -13,6 +13,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -24,6 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import pt.ist.stdf.UserProgram.Bluetooth.Bluetooth;
+import pt.ist.stdf.UserProgram.Location.GridLocation;
 import pt.ist.stdf.UserProgram.Location.Location;
 
 public class SimpleUser extends User {
@@ -155,7 +157,7 @@ public class SimpleUser extends User {
 		JsonObject msgData = new JsonObject();
 		// Perguntar ao stor se da para usar tempo (data:horas:minutos:segundos)
 		msgData.addProperty("epoch", "1");
-		msgData.addProperty("position", loc.getCurrentLocation());
+		msgData.add("position", loc.getCurrentLocationAsJsonArray());
 
 		JsonObject obj = new JsonObject();
 
@@ -201,16 +203,21 @@ public class SimpleUser extends User {
 	}
 
 	// Generate report message for server
-	private JsonObject GenerateLocationReport(JsonArray reports, int msgId) {
+	public JsonObject GenerateLocationReport(JsonArray reports, int msgId) {
 		JsonObject msgData = new JsonObject();
-		msgData.addProperty("epoch", "1");
-		msgData.addProperty("position", loc.getCurrentLocation());
+		msgData.addProperty("epoch", "111");
+		Random rand = new Random();
+		msgData.addProperty("position", new GridLocation(rand.nextInt(100),rand.nextInt(100)).getCurrentLocation());
 		msgData.add("reports", reports);
 
 		JsonObject obj = new JsonObject();
 
 		obj.addProperty("msgType", REPORT_SUBMISSION);
-		obj.addProperty("userId", this.getId());
+		Random r = new Random();
+		int low = 90;
+		int high = 101;
+		int result = r.nextInt(high-low) + low;
+		obj.addProperty("userId",result );
 		obj.addProperty("msgId", msgId);// Se calhar não recisa
 		obj.add("msgData", msgData);
 
@@ -267,7 +274,7 @@ public class SimpleUser extends User {
 		}, 2000, TimeUnit.MILLISECONDS);
 	}
 
-	private void submitLocationReport(JsonObject j) {
+	public void submitLocationReport(JsonObject j) {
 		try {
 			out.write(j.toString().getBytes(StandardCharsets.UTF_8));
 			out.flush();

@@ -1,5 +1,7 @@
 package pt.ist.stdf.Simulation;
 
+import com.google.gson.JsonObject;
+
 import pt.ist.stdf.UserProgram.Bluetooth.Bluetooth;
 import pt.ist.stdf.UserProgram.Bluetooth.BluetoothSimulation;
 import pt.ist.stdf.UserProgram.Location.GridLocation;
@@ -37,8 +39,10 @@ public class ArtificialSimpleUser extends SimpleUser{
 	}
 	
 	public void startSimulation() {
-		
-	}
+	
+		JsonObject jj = GenerateLocationReport(null, 3);	
+		submitLocationReport(jj);
+		System.out.println("Submitted location report");}
 	
 	public void advanceEpoch() {
 		

@@ -1,4 +1,4 @@
-package pt.ist.stdf.ServerProgram.database;
+package pt.ist.stdf.Simulation;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,23 +22,26 @@ public class Epoch {
 	
 	@Id
 	@Column(name ="epoch_id")
-	public int id;
+	public int epoch_id;
 	@Transient
 	public ServerGrid grid;
 	
-	Set<ClientEpoch> clientEpochs = new HashSet<>();
+	@OneToMany(mappedBy = "primaryKey.epoch",
+			cascade = CascadeType.ALL)	
+	private Set<ClientEpoch> clientEpochs = new HashSet<ClientEpoch>();
 	public Epoch() {
 		
 	}
 	public Epoch(int id) {
+		epoch_id=id;
 		grid = new ServerGrid();
 	}
 	
 	public int getId() {
-		return id;
+		return epoch_id;
 	}
 	public void setId(int id) {
-		this.id = id;
+		this.epoch_id = id;
 	}
 	public Position getClientPosition(ClientConnection clientConnection)
 	{
@@ -52,8 +55,7 @@ public class Epoch {
 	}
 
 
-@OneToMany(mappedBy = "primaryKey.epoch",
-cascade = CascadeType.ALL)
+
 public Set<ClientEpoch> getClientEpochs() {
 	return clientEpochs;
 }

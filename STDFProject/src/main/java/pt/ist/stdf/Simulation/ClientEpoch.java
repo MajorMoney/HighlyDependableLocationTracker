@@ -1,15 +1,12 @@
-package pt.ist.stdf.ServerProgram.database;
+package pt.ist.stdf.Simulation;
 
-import java.util.Set;
 
 import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
+import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -17,22 +14,27 @@ import pt.ist.stdf.ServerProgram.Position;
 import pt.ist.stdf.ServerProgram.ServerGrid;
 import pt.ist.stdf.ServerProgram.HandleClient.ClientConnection;
 
-@Entity
-@Table(name="server_client_epochs")
 @AssociationOverrides({
     @AssociationOverride(name = "primaryKey.client",
         joinColumns = @JoinColumn(name = "client_id")),
     @AssociationOverride(name = "primaryKey.epoch",
         joinColumns = @JoinColumn(name = "epoch_id")) })
+@Entity
+@Table(name="server_client_epochs")
 public class ClientEpoch {
 	
 	//Composite id key
+
+	@EmbeddedId
 	private ClientEpochId primaryKey = new ClientEpochId();
 	
-	@Transient
-	public ServerGrid grid;
-	
+	//@Transient
+	//public ServerGrid grid;
+
+	@Column(name="x")
 	private int x_position;
+
+	@Column(name="y")
 	private int y_position;
 	
 	
@@ -42,10 +44,9 @@ public class ClientEpoch {
 	}
 
 	public ClientEpoch(int id) {
-		grid = new ServerGrid();
+		//grid = new ServerGrid();
 	}
 	
-	@EmbeddedId
 	public ClientEpochId getPrimaryKey() {
 		return primaryKey;
 	}
@@ -58,10 +59,26 @@ public class ClientEpoch {
 	        return getPrimaryKey().getClient();
 	    }
 	 
-	    public void setClient(Client client) {
+	    public int getX_position() {
+		return x_position;
+	}
+
+	public void setX_position(int x_position) {
+		this.x_position = x_position;
+	}
+
+	public int getY_position() {
+		return y_position;
+	}
+
+	public void setY_position(int y_position) {
+		this.y_position = y_position;
+	}
+
+		public void setClient(Client client) {
 	        getPrimaryKey().setClient(client);
 	    }
-	 
+	  
 	    @Transient
 	    public Epoch getEpoch() {
 	        return getPrimaryKey().getEpoch();
@@ -73,13 +90,13 @@ public class ClientEpoch {
 	    
 	public Position getClientPosition(ClientConnection clientConnection)
 	{
-		Position pos = grid.getClientPosition(clientConnection);
-		return pos;
-		
+		//Position pos = grid.getClientPosition(clientConnection);
+		//return pos;
+		return null;
 	}
 	public void AddClient(Position position, ClientConnection clientConnection)
 	{
-		grid.AddClientToGrid(position, clientConnection);
+	//	grid.AddClientToGrid(position, clientConnection);
 	}
 
 }

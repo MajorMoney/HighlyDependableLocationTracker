@@ -52,12 +52,14 @@ public class ClientMessage {
 
 	}
 
+	
+
 	private byte[] buffer;
 	private int userId;
 	private int epoch;
 	private ClientMessageTypes msgType;
 	ArrayList<ClientReport> reports;
-	
+
 	public ClientMessage(byte[] buffer) {
 		this.buffer = buffer;
 		readMessage();
@@ -67,25 +69,25 @@ public class ClientMessage {
 	 * reader.setLenient(true) é necessario porque senao ele tenta ler espaços vazios
 	 * */
 	private void readMessage() {
-//		String s = new String(buffer, StandardCharsets.UTF_8);
-//		System.out.println("Received: "+s);
-//		Gson gson = new Gson();
-//		JsonReader reader = new JsonReader(new StringReader(s));
-//		reader.setLenient(true);
-//		JsonElement tree = gson.fromJson(reader, JsonElement.class);
-//		//JsonElement tree = JsonParser.parseString(s).getAsJsonObject();
-//		if (tree.isJsonObject()) {
-//			JsonObject msg = tree.getAsJsonObject();
-//			userId = msg.get("userId").getAsInt();
-//			msgType = ClientMessageTypes.getMessageTypeByInt(msg.get("msgType").getAsInt());
-//			if (msgType != null) {
-//
-//				JsonObject msgData = msg.get("msgData").getAsJsonObject();
-//				handleMessageData(msgType, msgData);
-//
-//			}
-//
-//		}
+		String s = new String(buffer, StandardCharsets.UTF_8);
+		System.out.println("Received: "+s);
+		Gson gson = new Gson();
+		JsonReader reader = new JsonReader(new StringReader(s));
+		reader.setLenient(true);
+		JsonElement tree = gson.fromJson(reader, JsonElement.class);
+		//JsonElement tree = JsonParser.parseString(s).getAsJsonObject();
+		if (tree.isJsonObject()) {
+			JsonObject msg = tree.getAsJsonObject();
+			userId = msg.get("userId").getAsInt();
+			msgType = ClientMessageTypes.getMessageTypeByInt(msg.get("msgType").getAsInt());
+			if (msgType != null) {
+
+				JsonObject msgData = msg.get("msgData").getAsJsonObject();
+				handleMessageData(msgType, msgData);
+
+			}
+
+		}
 	}
 	
 	Position position;
@@ -100,9 +102,20 @@ public class ClientMessage {
 			break;
 		}
 		case obtainLocationReport:
-			epoch = msgData.getAsInt();
+			epoch = msgData.get("epoch").getAsInt();
+			String[] positionString = msgData.get("position").getAsString().split(" ");
+			
+			position = new Position((int)positionString[0].charAt(positionString[0].length()-1),(int)positionString[1].charAt(positionString[1].length()-1));
+			int num_reports = msgData.get("num_reports").getAsInt();
+			reports = jsonArrayToList(num_reports,msgData.get("reports").getAsJsonArray());
 			break;
 		case obtainUserAtLocation:
+			epoch = msgData.get("epoch").getAsInt();
+			String[] positionString1 = msgData.get("position").getAsString().split(" ");
+			position = new Position((int)positionString1[0].charAt(positionString1[0].length()-1),(int)positionString1[1].charAt(positionString1[1].length()-1));
+			//int num_reports1 = msgData.get("num_reports").getAsInt();
+			//reports = jsonArrayToList(num_reports1,msgData.get("reports").getAsJsonArray());
+			break;
 		}
 	}
 	/**
@@ -128,6 +141,7 @@ public class ClientMessage {
 		String s = "[MESSAGE: ] id: "+userId+" msgType: "+msgType.toString() +" epoch: "+
 				epoch +" position: " + position.toString() +"/n";
 		System.out.println(s);
+		if(reports!=null)
 		for (ClientReport b : reports) {
 			System.out.println(b.toString());
 		}
@@ -137,6 +151,36 @@ public class ClientMessage {
 	public String toString() {
 		String s = "[MESSAGE: ] id: "+userId+" msgType: "+msgType.toString();
 		return s;
+	}
+	public int getUserId() {
+		return userId;
+	}
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+	public int getEpoch() {
+		return epoch;
+	}
+	public void setEpoch(int epoch) {
+		this.epoch = epoch;
+	}
+	public ClientMessageTypes getMsgType() {
+		return msgType;
+	}
+	public void setMsgType(ClientMessageTypes msgType) {
+		this.msgType = msgType;
+	}
+	public ArrayList<ClientReport> getReports() {
+		return reports;
+	}
+	public void setReports(ArrayList<ClientReport> reports) {
+		this.reports = reports;
+	}
+	public Position getPosition() {
+		return position;
+	}
+	public void setPosition(Position position) {
+		this.position = position;
 	}
 	
 	

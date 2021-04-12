@@ -5,8 +5,8 @@ import com.google.gson.JsonArray;
 public class Position {
 
 	public Integer[] position = new Integer[2];
-	int x;
-	int y;
+	public int x;
+	public int y;
 	
 	public Position(int x,int y) {
 		this.x=x;

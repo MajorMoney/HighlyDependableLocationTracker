@@ -1,4 +1,4 @@
-package pt.ist.stdf.ServerProgram.database;
+package pt.ist.stdf.Simulation;
 
 import java.io.Serializable;
 
@@ -8,10 +8,12 @@ import javax.persistence.ManyToOne;
  
 @Embeddable
 public class ClientEpochId implements Serializable { 
+	
+    @ManyToOne(cascade = CascadeType.ALL)
     private Client client;
+    @ManyToOne(cascade = CascadeType.ALL)
     private Epoch epoch;
  
-    @ManyToOne(cascade = CascadeType.ALL)
     public Client getClient() {
         return client;
     }
@@ -20,7 +22,7 @@ public class ClientEpochId implements Serializable {
         this.client = client;
     }
  
-    @ManyToOne(cascade = CascadeType.ALL)
+    
     public Epoch getEpoch() {
         return epoch;
     }
