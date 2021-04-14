@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import pt.ist.stdf.ServerProgram.HandleClient.ClientConnection;
 import pt.ist.stdf.Simulation.Client;
 import pt.ist.stdf.Simulation.ClientEpoch;
+import pt.ist.stdf.Simulation.ClientEpochId;
 import pt.ist.stdf.Simulation.ClientEpochRepository;
 import pt.ist.stdf.Simulation.ClientRepository;
 import pt.ist.stdf.Simulation.Epoch;
@@ -69,8 +70,11 @@ public class Server {
 		s.Start();
 	}
 
-	public Client findClientById(int id) {
-		return clientRepository.findById(id);
+	public List<ClientEpoch> getAllClientEpochs(){
+		return clientEpochRepository.findAll();
+	}
+	public Optional<Client> findClientById(int id) {
+		return clientRepository.findById(Integer.valueOf(id));
 	}
 	
 	public Epoch findEpochById(int id) {
@@ -79,5 +83,22 @@ public class Server {
 	
 	public void addClientEpoch(ClientEpoch clientEpoch) {
 		clientEpochRepository.save(clientEpoch);
+	}
+	public void addClient(Client client) {
+		clientRepository.saveAndFlush(client);
+	}
+	public void updateClientSharedKey(Client client)
+	{
+		clientRepository.setClientSharedKeyById(client.getId(),client.getSharedKey());
+	}
+	public Optional<ClientEpoch> findClientEpochByInt(Client c, Epoch e) {
+	
+		ClientEpochId id = new ClientEpochId();
+		id.setClient(c);
+		id.setEpoch(e);
+		Optional<ClientEpoch> cc = clientEpochRepository.findById(id);
+		
+		System.out.println("Find client epoch by id: "+cc.toString());
+		return cc;
 	}
 }

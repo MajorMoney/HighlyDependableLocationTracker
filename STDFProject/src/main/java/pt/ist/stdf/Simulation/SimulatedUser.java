@@ -19,6 +19,11 @@ private String publicKey;
 public SimulatedUser() {
 	
 }
+public SimulatedUser(Integer id,String priv, String pub) {
+	this.privateKey=priv;
+	this.publicKey=pub; 
+	this.id=id;
+}
 public SimulatedUser(String priv, String pub) {
 	this.privateKey=priv;
 	this.publicKey=pub; 

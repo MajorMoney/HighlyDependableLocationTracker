@@ -88,6 +88,12 @@ public class ClientEpoch {
 	        getPrimaryKey().setEpoch(epoch);
 	    }
 	    
+	@Override
+		public String toString() {
+			return "ClientEpoch [primaryKey=" + primaryKey + ", x_position=" + x_position + ", y_position=" + y_position
+					+ "]";
+		}
+
 	public Position getClientPosition(ClientConnection clientConnection)
 	{
 		//Position pos = grid.getClientPosition(clientConnection);

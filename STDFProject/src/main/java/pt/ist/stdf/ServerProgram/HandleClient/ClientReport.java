@@ -25,6 +25,20 @@ public class ClientReport {
 		readMessage();
 	}
 
+	public ClientReport(JsonObject json)
+	{
+		readMessageFromJson(json);
+	}
+	private void readMessageFromJson(JsonObject json) {
+		JsonObject msg=json;
+		userId = msg.get("userId").getAsInt();
+		msgType = ClientMessageTypes.getMessageTypeByInt(msg.get("msgType").getAsInt());
+		if (msgType.equals(ClientMessageTypes.userReport)) {
+			JsonObject msgData = msg.get("msgData").getAsJsonObject();
+			handleMessageData(msgData);
+		}
+	}
+
 	private void readMessage() {
 		String s = new String(buffer, StandardCharsets.UTF_8);
 		System.out.println("Report: " + s);
@@ -48,13 +62,16 @@ public class ClientReport {
 	}
 	private void handleMessageData(JsonObject msgData) {
 			epoch = msgData.get("epoch").getAsInt();
-			position = new Position(msgData.get("position").getAsJsonArray());
+	}
+	
+	public boolean isValid() {
+		return true;
 	}
 	
 	@Override
 	public String toString() {
 		String s = "[CLIENT REPORT] id: "+userId+" msgType: "+msgType.toString() 
-		+" epoch: "+epoch +" position: "+ position.toString();
+		+" epoch: "+epoch;
 		return s;
 	}
 	

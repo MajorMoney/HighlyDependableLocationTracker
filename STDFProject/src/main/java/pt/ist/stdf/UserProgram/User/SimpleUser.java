@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -23,18 +25,39 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
+import pt.ist.stdf.ServerProgram.Position;
+import pt.ist.stdf.ServerProgram.HandleClient.ClientMessage;
+import pt.ist.stdf.ServerProgram.HandleClient.ClientMessage.ClientMessageTypes;
 import pt.ist.stdf.UserProgram.Bluetooth.Bluetooth;
 import pt.ist.stdf.UserProgram.Location.GridLocation;
 import pt.ist.stdf.UserProgram.Location.Location;
+import pt.ist.stdf.UserProgram.User.ServerResponseListener.ServerResponseListener;
 
 public class SimpleUser extends User {
 
+	private static final int MAX_UDP_DATA_SIZE = (64 * 1024 - 1) - 8 - 20;
+	private static final int BUFFER_SIZE = MAX_UDP_DATA_SIZE;
+	
 	private final int REQUEST_VALDATION = 0;
 	private final int RESPONSE_TO_VALIDATION = 1;
 	private final int REPORT_SUBMISSION = 2;
+	// Server messages
+	private final int REPORT_OTHER_USER = 5;
+	private final int OBTAIN_LOCATION_REPORT = 1;
+	private final int SUBMIT_LOCATION_REPORT = 3;
+	private final int OBTAIN_LOCATION_REPORT_HA = 4;
+	private final int OBTAIN_USERS_AT_LOCATION_HA = 2;
+	private final int SUBMIT_SHARED_KEY=9;
+
+//Test	
+	private final int MAX_NUM_REPORTS = 3;
+
 	private final int SERVER_PORT = 8888;
 
+	private ServerResponseListener serverResponseListener;
 	protected Location loc;
 	protected Bluetooth bltth;
 
@@ -44,6 +67,8 @@ public class SimpleUser extends User {
 	private HashMap<Integer, ReportMaker> openReportMakers;
 	private List<Integer> sentReports;
 
+	
+	private byte[] buffer = new byte[BUFFER_SIZE];
 	private Socket serverSocket;
 	private DataInputStream in;
 	private DataOutputStream out;
@@ -55,10 +80,11 @@ public class SimpleUser extends User {
 		openReportMakers = new HashMap<Integer, ReportMaker>();
 		sentReports = Collections.synchronizedList(new ArrayList<Integer>());
 		setUpTimer();
+		openServerConnection(); 		// Temporariariament aqui
 		messageHandler = new SimpleUserMessageHandler(this, bltth);
 		messageHandler.start();
-		openServerConnection();// Temporariariament aqui
 		System.out.println("User created at position " + loc.getCurrentLocation() + " -->ID: " + this.getId());
+	
 	}
 
 	// ##Starter methods##//
@@ -75,6 +101,11 @@ public class SimpleUser extends User {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	public void starServerListener( LinkedBlockingQueue<JsonObject> messages) throws IOException {
+		
+		serverResponseListener = new ServerResponseListener(serverSocket, messages);
+		serverResponseListener.start();
 	}
 
 	// ##Utils##//
@@ -202,27 +233,135 @@ public class SimpleUser extends User {
 
 	}
 
+	public JsonArray generateTestReports() {
+		JsonArray jsonArr = new JsonArray();
+		for (int i = 0; i < MAX_NUM_REPORTS; i++) {
+
+			JsonObject msgData = new JsonObject();
+			Random r = new Random();
+			msgData.addProperty("epoch", 111 + r.nextInt(5));
+			JsonObject obj = new JsonObject();
+			obj.addProperty("msgType", REPORT_OTHER_USER);
+			int low = 90;
+			int high = 101;
+			int result = r.nextInt(high - low) + low;
+			obj.addProperty("userId", result);
+			obj.add("msgData", msgData);
+			jsonArr.add(obj);
+		}
+		return jsonArr;
+	}
+
 	// Generate report message for server
-	public JsonObject GenerateLocationReport(JsonArray reports, int msgId) {
+	public JsonObject generateSubmitLocationReport(JsonArray reports, int msgId) {
 		JsonObject msgData = new JsonObject();
 		msgData.addProperty("epoch", "111");
 		Random rand = new Random();
-		msgData.addProperty("position", new GridLocation(rand.nextInt(100),rand.nextInt(100)).getCurrentLocation());
+		msgData.addProperty("position", new GridLocation(rand.nextInt(100), rand.nextInt(100)).getCurrentLocation());
+		msgData.addProperty("num_reports", 3);
 		msgData.add("reports", reports);
 
 		JsonObject obj = new JsonObject();
 
-		obj.addProperty("msgType", REPORT_SUBMISSION);
+		obj.addProperty("msgType", SUBMIT_LOCATION_REPORT);
 		Random r = new Random();
 		int low = 90;
 		int high = 101;
-		int result = r.nextInt(high-low) + low;
-		obj.addProperty("userId",result );
+		int result = r.nextInt(high - low) + low;
+		obj.addProperty("userId", result);
 		obj.addProperty("msgId", msgId);// Se calhar não recisa
 		obj.add("msgData", msgData);
 
 		return obj;
 	}
+
+	// Generate report message for server
+	public JsonObject generateObtainLocationReport() {
+		JsonObject msgData = new JsonObject();
+		msgData.addProperty("epoch", "1");
+
+		JsonObject obj = new JsonObject();
+
+		obj.addProperty("msgType", OBTAIN_LOCATION_REPORT);
+		Random r = new Random();
+		int low = 1;
+		int high = 5;
+		int result = r.nextInt(high - low) + low;
+		obj.addProperty("userId", result);
+		obj.add("msgData", msgData);
+
+		return obj;
+	}
+
+	// Generate report message for server
+	public JsonObject generateObtainLocationReportHA() {
+		JsonObject msgData = new JsonObject();
+		msgData.addProperty("epoch", "1");
+		msgData.addProperty("userId", 4);
+		JsonObject obj = new JsonObject();
+
+		obj.addProperty("msgType", OBTAIN_LOCATION_REPORT_HA);
+		Random r = new Random();
+		int low = 90;
+		int high = 101;
+		int result = r.nextInt(high - low) + low;
+		obj.addProperty("userId", result);
+		obj.add("msgData", msgData);
+
+		return obj;
+	}
+	public JsonObject generateSubmitSharedKey() {
+		JsonObject msgData = new JsonObject();
+		msgData.addProperty("sharedKey", "thisisasharedkey");
+
+		JsonObject obj = new JsonObject();
+
+		obj.addProperty("msgType", SUBMIT_SHARED_KEY);
+		Random r = new Random();
+		int low = 1;
+		int high = 5;
+		int result = r.nextInt(high - low) + low;
+		obj.addProperty("userId", result);
+		obj.add("msgData", msgData);
+		
+		return obj;
+	}
+
+	public JsonObject generateObtainUsersAtLocationHA() {
+		JsonObject msgData = new JsonObject();
+		Random rand = new Random();
+		GridLocation g =new GridLocation(4,4);
+		msgData.addProperty("position", g.getCurrentLocation());
+		System.out.println("GRID LOCATION: "+g.getCurrentLocation());
+		msgData.addProperty("epoch", 1);
+		JsonObject obj = new JsonObject();
+
+		obj.addProperty("msgType", OBTAIN_USERS_AT_LOCATION_HA);
+		Random r = new Random();
+		int low = 90;
+		int high = 101;
+		int result = r.nextInt(high - low) + low;
+		obj.addProperty("userId", result);
+		obj.add("msgData", msgData);
+
+		return obj;
+	}
+	
+	public
+	void listenForResponse() {
+		try {
+			in.read(buffer,0,buffer.length);
+			String s = new String(buffer,StandardCharsets.UTF_8);
+			System.out.println("Received msg from server on client " + getId()+":  "+s);
+			
+			JsonObject msg = JsonParser.parseString(s.trim()).getAsJsonObject();
+			//ClientMessage cm = new ClientMessage(buffer,server,this);
+			
+		}catch(Exception e) {
+			
+		}
+	}
+	
 
 	// ##General Procedure Methods##//
 
@@ -241,7 +380,7 @@ public class SimpleUser extends User {
 	// Handle a response to a proof previously submitted
 	public void hadleResponseMessage(JsonObject msg) {
 		msg.remove("senderPort");
-		
+
 		System.out.println(
 				"User ID:" + this.getId() + " received response to proof request! Sender ID:" + msg.get("userId"));
 		System.out.println("MSG:" + msg.toString());
@@ -258,6 +397,45 @@ public class SimpleUser extends User {
 		}
 	}
 
+	
+	public void handleServerResponseObtainLocRepMessage(JsonObject msg) {
+		int userId = msg.get("userId").getAsInt();
+		JsonObject msgData = msg.get("msgData").getAsJsonObject();
+		int epoch = msgData.get("epoch").getAsInt();
+		String[] positionString1 = msgData.get("position").getAsString().split(" ");
+		GridLocation gp = new GridLocation((int)positionString1[0].charAt(positionString1[0].length()-1),(int)positionString1[1].charAt(positionString1[1].length()-1));
+		System.out.println("[CLIENT FINAL: OBTAINS USER LOCATION "+userId+" epoch asked: "+epoch+"->> position returned: "+gp.getCurrentLocation());
+	
+	}
+	public void handleServerResponseObtainUsersAtLocationMessage(JsonObject msg) {
+		int userId = msg.get("userId").getAsInt();
+		JsonObject msgData = msg.get("msgData").getAsJsonObject();
+		int epoch = msgData.get("epoch").getAsInt();
+		String[] positionString1 = msgData.get("position").getAsString().split(" ");
+		GridLocation gp = new GridLocation((int)positionString1[0].charAt(positionString1[0].length()-1),(int)positionString1[1].charAt(positionString1[1].length()-1));
+		JsonArray users = msgData.get("users").getAsJsonArray();
+		for(int i=0;i<users.size();i++)
+		{
+			System.out.println("Found user:"+users.get(i).getAsInt());
+		}
+		
+		System.out.println("[CLIENT FINAL: OBTAINS USERS AT LOCATION "+userId+" epoch asked: "+epoch+"->> position returned: "+gp.getCurrentLocation());
+	
+	}
+
+
+	public void handleServerResponseObtainLocationMessageHA(JsonObject msg) {
+		int userId = msg.get("userId").getAsInt();
+		JsonObject msgData = msg.get("msgData").getAsJsonObject();
+		int epoch = msgData.get("epoch").getAsInt();
+		String[] positionString1 = msgData.get("position").getAsString().split(" ");
+		GridLocation gp = new GridLocation(Integer.parseInt(String.valueOf(positionString1[0].charAt(positionString1[0].length()-1))),Integer.parseInt(String.valueOf(positionString1[1].charAt(positionString1[1].length()-1))));
+		System.out.println("[CLIENT HA FINAL: OBTAINS USER LOCATION "+userId+" epoch asked: "+epoch+"->> position returned: "+gp.getCurrentLocation());
+	
+		
+	}
+
+	
 	private void startNewTimer(ReportMaker rm, int msgId) {
 		timer.schedule(new Runnable() {
 			public void run() {
@@ -265,8 +443,8 @@ public class SimpleUser extends User {
 					System.out.println("Timed Thread Executing...");
 					removeSentReport(msgId);
 					removeReportMaker(msgId);
-					submitLocationReport(GenerateLocationReport(rm.getAllReports(), msgId));
-					System.out.println(GenerateLocationReport(rm.getAllReports(), msgId).toString());
+					submitLocationReport(generateSubmitLocationReport(rm.getAllReports(), msgId));
+					System.out.println(generateSubmitLocationReport(rm.getAllReports(), msgId).toString());
 				} catch (Error e) {
 					e.printStackTrace();
 				}
@@ -278,7 +456,7 @@ public class SimpleUser extends User {
 		try {
 			out.write(j.toString().getBytes(StandardCharsets.UTF_8));
 			out.flush();
-			//out.close();
+			// out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -291,6 +469,8 @@ public class SimpleUser extends User {
 			e.printStackTrace();
 		}
 	}
+
+
 
 //	// Classe a chamar no main para simular o user
 //	public void testSomethingWithServer() {

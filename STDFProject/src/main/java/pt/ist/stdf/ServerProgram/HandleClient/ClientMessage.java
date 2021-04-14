@@ -4,6 +4,8 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -13,6 +15,12 @@ import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
 import pt.ist.stdf.ServerProgram.Position;
+import pt.ist.stdf.ServerProgram.Server;
+import pt.ist.stdf.Simulation.Client;
+import pt.ist.stdf.Simulation.ClientEpoch;
+import pt.ist.stdf.Simulation.Epoch;
+import pt.ist.stdf.UserProgram.Location.GridLocation;
+import pt.ist.stdf.UserProgram.Location.Location;
 
 public class ClientMessage {
 
@@ -20,9 +28,9 @@ public class ClientMessage {
 	/**
 	 * Um clientMessageType por tipo de mensagem 
 	 * */
-	public enum ClientMessageTypes {
-		REPORT_SUBMISSION(3), obtainLocationReport(1), obtainUserAtLocation(2),
-		userReport(0);
+	public enum ClientMessageTypes{ 
+		REPORT_SUBMISSION(3), obtainLocationReport(1), obtainUserAtLocation(2),obtainLocationReportHA(4),
+		userReport(5),serverResponseObtainLocationReport(6),serverResponseObtainUsersAtLocation(7),serverResponseObtainLocationReportHA(8),submitSharedKey(9);
 
 		private final int value;
 
@@ -37,14 +45,25 @@ public class ClientMessage {
 		 * @return the correct ClientMessageType*/
 		public static ClientMessageTypes getMessageTypeByInt(int val) {
 			switch (val) {
-			case 0:
+			case 3:
 				return ClientMessageTypes.REPORT_SUBMISSION;
 			case 1:
 				return ClientMessageTypes.obtainLocationReport;
 			case 2:
 				return ClientMessageTypes.obtainUserAtLocation;
-			case 3:
+			case 5:
 				return ClientMessageTypes.userReport;
+			case 4:
+				return ClientMessageTypes.obtainLocationReportHA;
+			case 6:
+				return ClientMessageTypes.serverResponseObtainLocationReport;
+			case 7:
+				return ClientMessageTypes.serverResponseObtainUsersAtLocation;
+			case 8:
+				return ClientMessageTypes.serverResponseObtainLocationReportHA;
+			case 9:
+				return ClientMessageTypes.submitSharedKey;
+			
 			default:
 				return null;
 			}
@@ -57,11 +76,16 @@ public class ClientMessage {
 	private byte[] buffer;
 	private int userId;
 	private int epoch;
+	private int num_reports;
 	private ClientMessageTypes msgType;
 	ArrayList<ClientReport> reports;
-
-	public ClientMessage(byte[] buffer) {
+	public Server server;
+	public ClientConnection clientConnection;
+	
+	public ClientMessage(byte[] buffer,Server server,ClientConnection cc) {
 		this.buffer = buffer;
+		this.server=server;
+		this.clientConnection = cc;
 		readMessage();
 	}
 	/**
@@ -70,7 +94,7 @@ public class ClientMessage {
 	 * */
 	private void readMessage() {
 		String s = new String(buffer, StandardCharsets.UTF_8);
-		System.out.println("Received: "+s);
+		//System.out.println("Received<<<<<<: "+s);
 		Gson gson = new Gson();
 		JsonReader reader = new JsonReader(new StringReader(s));
 		reader.setLenient(true);
@@ -95,28 +119,146 @@ public class ClientMessage {
 		switch(type) {
 		case REPORT_SUBMISSION:
 		{
-			epoch = msgData.get("epoch").getAsInt();
-			position = new Position(msgData.get("position").getAsJsonArray());
-			int num_reports = msgData.get("num_reports").getAsInt();
-			reports = jsonArrayToList(num_reports,msgData.get("reports").getAsJsonArray());
+			submitLocationReport(msgData);
+			System.out.println("[MSG: SUBMIT LOCATION REPORT "+userId);
+
 			break;
 		}
 		case obtainLocationReport:
-			epoch = msgData.get("epoch").getAsInt();
-			String[] positionString = msgData.get("position").getAsString().split(" ");
+			JsonObject response =obtainLocationReport(msgData);
+			sendResponseToClient(response);
+			break;
+		case obtainLocationReportHA:
+			JsonObject jj = obtainLocationReportHA(msgData);
+			sendResponseToClient(jj);
+			System.out.println("[MSG: OBTAIN USER LOCATION REPORT HA CLIENT");
 			
-			position = new Position((int)positionString[0].charAt(positionString[0].length()-1),(int)positionString[1].charAt(positionString[1].length()-1));
-			int num_reports = msgData.get("num_reports").getAsInt();
-			reports = jsonArrayToList(num_reports,msgData.get("reports").getAsJsonArray());
 			break;
 		case obtainUserAtLocation:
-			epoch = msgData.get("epoch").getAsInt();
-			String[] positionString1 = msgData.get("position").getAsString().split(" ");
-			position = new Position((int)positionString1[0].charAt(positionString1[0].length()-1),(int)positionString1[1].charAt(positionString1[1].length()-1));
-			//int num_reports1 = msgData.get("num_reports").getAsInt();
-			//reports = jsonArrayToList(num_reports1,msgData.get("reports").getAsJsonArray());
+			JsonObject resp =obtainUsersAtLocationResponse(msgData);
+			sendResponseToClient(resp);
+			System.out.println("[MSG: OBTAINS USER AT LOCATION "+userId+" epoch asked: "+epoch+" position asked: "+position.x+" ; "+position.y);
+			break;
+		case submitSharedKey:
+			submitSharedKey(msgData);
 			break;
 		}
+	}
+	
+	
+	private JsonObject obtainLocationReport(JsonObject msgData) {
+
+		epoch = msgData.get("epoch").getAsInt();
+		System.out.println("[MSG: OBTAIN LOCATION REPORT "+userId+" epoch asked: "+epoch);
+		Optional<ClientEpoch> ce = server.findClientEpochByInt(server.findClientById(userId).get(), server.findEpochById(epoch));
+		System.out.println("Obtained");
+		
+		JsonObject message = new JsonObject();
+		message.addProperty("userId", userId);
+		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReport.value);
+		JsonObject msgDataWithLocation= new JsonObject();
+		msgDataWithLocation.addProperty("epoch", epoch);
+		ClientEpoch result= ce.get();
+		if(result!=null)
+			System.out.println("Found a non null result");
+		else 
+			System.out.println("Found null result");
+		GridLocation l = new GridLocation(result.getX_position(),result.getY_position());
+		System.out.println("Possition returned : "+l.getCurrentLocation());
+		msgDataWithLocation.addProperty("position",l.getCurrentLocation());
+		message.add("msgData", msgDataWithLocation);
+		return message;
+	}
+	
+	private JsonObject obtainLocationReportHA(JsonObject msgData) {
+
+		epoch = msgData.get("epoch").getAsInt();
+		System.out.println("[MSG: OBTAIN LOCATION REPORT HA "+userId+" epoch asked: "+epoch);
+		int askedUserId = msgData.get("userId").getAsInt();
+
+		Optional<ClientEpoch> ce = server.findClientEpochByInt(server.findClientById(askedUserId).get(), server.findEpochById(epoch));
+		System.out.println("Obtained");
+		JsonObject message = new JsonObject();
+		message.addProperty("userId", userId);
+		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReportHA.value);
+		JsonObject msgDataWithLocation= new JsonObject();
+		msgDataWithLocation.addProperty("epoch", epoch);
+		msgDataWithLocation.addProperty("userId", askedUserId);
+		ClientEpoch result= ce.get();
+		if(result!=null)
+			System.out.println("Found a non null result");
+		else 
+			System.out.println("Found null result");
+		GridLocation l = new GridLocation(result.getX_position(),result.getY_position());
+		System.out.println("Possition returned : "+l.getCurrentLocation());
+		msgDataWithLocation.addProperty("position",l.getCurrentLocation());
+		message.add("msgData", msgDataWithLocation);
+		return message;
+	}
+	private JsonObject obtainUsersAtLocationResponse(JsonObject msgData) {
+		epoch = msgData.get("epoch").getAsInt();
+		String[] positionString1 = msgData.get("position").getAsString().split(" ");
+		System.out.println(positionString1[0]+ " "+positionString1[1]);
+		position = new Position(Integer.parseInt(String.valueOf(positionString1[0].charAt(positionString1[0].length()-1))),Integer.parseInt(String.valueOf(positionString1[1].charAt(positionString1[1].length()-1))));
+		System.out.println("Location "+position.x+" "+position.y);
+		List<ClientEpoch> ce = server.getAllClientEpochs();
+		System.out.println("Obtained");
+		List<Client> interested= new ArrayList<Client>();
+		for(ClientEpoch c :ce ) {
+			if(c.getX_position()==position.x)
+				if(c.getY_position()==position.y)
+					interested.add(server.findClientById(c.getClient().getId()).get());
+		}
+
+		JsonObject message = new JsonObject();
+		message.addProperty("userId", userId);
+		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainUsersAtLocation.value);
+		JsonObject msgDataWithUsers= new JsonObject();
+		GridLocation l = new GridLocation(position.x,position.y);
+		msgDataWithUsers.addProperty("position", l.getCurrentLocation());
+		msgDataWithUsers.addProperty("epoch", epoch);
+		JsonArray arr = new JsonArray();
+		for(Client c : interested) {
+		
+			arr.add(c.getId());
+		}
+		msgDataWithUsers.add("users", arr);
+		message.add("msgData", msgDataWithUsers);
+		return message;
+	}
+	private void sendResponseToClient(JsonObject jsonObjToSend) {
+		clientConnection.send(jsonObjToSend);
+	}
+	private void submitLocationReport(JsonObject msgData)
+	{
+		epoch = msgData.get("epoch").getAsInt();
+		String[] positionString = msgData.get("position").getAsString().split(" ");
+		position = new Position((int)positionString[0].charAt(positionString[0].length()-1),(int)positionString[1].charAt(positionString[1].length()-1));
+		num_reports = msgData.get("num_reports").getAsInt();
+		System.out.println("Received reports: "+num_reports);
+		reports = jsonArrayToList(num_reports,msgData.get("reports").getAsJsonArray());
+		
+		
+		
+		checkIfValidSubmitLocationReport();
+	}
+	
+	private void submitSharedKey(JsonObject msgData)
+	{
+		String sharedKey = msgData.get("sharedKey").getAsString();
+		System.out.println("Received Shared key from client "+userId+ " : "+sharedKey);
+		Client c = server.findClientById(userId).get();
+		if(c!=null)
+			System.out.println("Updated/added client");
+		else {
+			System.out.println("DId not work");
+
+		}
+		System.out.println("Comparing to key: "+c.getSharedKey());
+		c.setSharedKey(sharedKey);
+		server.updateClientSharedKey(c);
+		System.out.println("DONE /added client");
+
 	}
 	/**
 	 * Turns the jsonArrayList of reports on the submitLocationRequest into a list of ClientReports
@@ -125,22 +267,46 @@ public class ClientMessage {
 	private ArrayList<ClientReport> jsonArrayToList(int num_reports,JsonArray jsonArray){
 		ArrayList<ClientReport> listz = new ArrayList<ClientReport>();
 		for(int i=0; i <num_reports;i++) {
-			byte[] a = Base64.getDecoder().decode(jsonArray.get(i).getAsString());
-			listz.add(new ClientReport(a));
+			JsonObject rep=(JsonObject) jsonArray.get(i);
+			ClientReport cr =new ClientReport(rep);
+			System.out.println(cr.toString());
+			listz.add(cr);
 		}
 		return listz;
 		
 	}
 
+	private void checkIfValidSubmitLocationReport(){
+		int allValid=0;
+		if(reports!=null)
+		for(ClientReport cr : reports){
+			if(cr.isValid()) {
+				allValid++;
+			}
+				
+			
+		}
+		if(allValid==num_reports)
+		{
+			ClientEpoch ce =new ClientEpoch();
+			ce.setClient(server.findClientById(userId).get());
+			ce.setEpoch(new Epoch(epoch));
+			ce.setX_position(position.x);
+			ce.setY_position(position.y);
+			server.addClientEpoch(ce);
+			System.out.println("Add client epoch:  "+userId+" epoch: "+epoch+" x:"+position.x+" y: "+position.y);
+		}
+		
+	}
 	private void handleReports() {
 		
 	}
 	
 	
 	public void PrintSubmitLocationReport() {
-		String s = "[MESSAGE: ] id: "+userId+" msgType: "+msgType.toString() +" epoch: "+
-				epoch +" position: " + position.toString() +"/n";
-		System.out.println(s);
+		//String s = "[MESSAGE: ] id: "+userId+" msgType: "+msgType.toString() +" epoch: "+
+			//	epoch +" position: " + position.toString() +"/n";
+	//	System.out.println(s);
 		if(reports!=null)
 		for (ClientReport b : reports) {
 			System.out.println(b.toString());

@@ -73,9 +73,9 @@ public class ClientConnection extends Thread{
 			
 			JsonObject msg = JsonParser.parseString(s.trim()).getAsJsonObject();
 			messages.put(msg);
-			ClientMessage cm = new ClientMessage(buffer);
+			ClientMessage cm = new ClientMessage(buffer,server,this);
 //			System.out.println(cm);
-			cm.PrintSubmitLocationReport();
+			/**cm.PrintSubmitLocationReport();
 			id = cm.getUserId();
 			Position position = cm.getPosition();
 			int epoch = cm.getEpoch();
@@ -87,6 +87,7 @@ public class ClientConnection extends Thread{
 			clientEpoch.setY_position(position.y);
 			
 			System.out.println("ClientEpoch print: "+clientEpoch.getPrimaryKey().getClient().getId() +"   -> "+clientEpoch.getPrimaryKey().getEpoch().getId());
+			**/
 			/**Client c = server.findClientById(id);
 			if(c!=null)
 				System.out.println("IS NULL -----------------------------------------");
@@ -96,7 +97,7 @@ public class ClientConnection extends Thread{
 			epochId.setEpoch(server.findEpochById(epoch));
 			//clientEpoch.setPrimaryKey(epochId);
 			**/
-			server.addClientEpoch(clientEpoch);
+			//server.addClientEpoch(clientEpoch);
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		} 
@@ -117,5 +118,18 @@ public class ClientConnection extends Thread{
 		if(clientConnection.id == this.id)
 			return true;
 		return false;
+	}
+	
+	public void send(JsonObject j) {
+		try {
+			DataOutputStream dout =new DataOutputStream (socket.getOutputStream());
+			dout.write(j.toString().getBytes(StandardCharsets.UTF_8));
+			dout.flush();
+			//dout.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

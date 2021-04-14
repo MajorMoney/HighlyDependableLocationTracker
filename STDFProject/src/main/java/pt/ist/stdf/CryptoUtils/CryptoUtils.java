@@ -80,14 +80,14 @@ public class CryptoUtils {
 		return dsaForVerify.verify(signature);
 	}
 
-	public static byte[] cipherKey(byte[] key,PrivateKey pk) throws NoSuchAlgorithmException, NoSuchPaddingException,
+	public static byte[] cipherKey(byte[] key,PublicKey pk) throws NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		Cipher c = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 		c.init(Cipher.ENCRYPT_MODE, pk);
 		return c.doFinal(key);
 	}
 
-	public static byte[] decipherKey(byte[] key, PublicKey pk) throws NoSuchAlgorithmException, NoSuchPaddingException,
+	public static byte[] decipherKey(byte[] key,PrivateKey pk) throws NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 		cipher.init(Cipher.DECRYPT_MODE, pk);
@@ -119,9 +119,9 @@ public class CryptoUtils {
 			IvParameterSpec iv=generateIv();
 			
 			String text = new String(data, 0, data.length);
-			byte[] encAes = cipherKey(aes.getEncoded(), privateKey );
+			byte[] encAes = cipherKey(aes.getEncoded(), publicKey );
 			System.out.println("CIPHER AES : " + new String(encAes, 0, encAes.length) + "\n");
-			byte[] decAes =decipherKey(encAes,publicKey );
+			byte[] decAes =decipherKey(encAes, privateKey);
 			SecretKey originalKey = new SecretKeySpec(decAes, 0, decAes.length, "AES");
 			System.out.println("PLAITEXT AES : " + new String(decAes, 0, decAes.length));
 			String cipheredText =cipherMsg(text, originalKey,iv);

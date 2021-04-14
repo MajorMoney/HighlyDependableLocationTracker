@@ -1,5 +1,6 @@
 package pt.ist.stdf.Simulation;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import pt.ist.stdf.UserProgram.Bluetooth.Bluetooth;
@@ -38,12 +39,40 @@ public class ArtificialSimpleUser extends SimpleUser{
 		
 	}
 	
-	public void startSimulation() {
-	
-		JsonObject jj = GenerateLocationReport(null, 3);	
+	public void startSimulation(int type) {
+	switch(type) {
+	case 0:
+		JsonArray rep0 = generateTestReports(); 
+		JsonObject jj = generateSubmitLocationReport(rep0, 3);	
 		submitLocationReport(jj);
-		System.out.println("Submitted location report");}
-	
+		System.out.println("[CLIENT] Submitted location report");
+		break;
+	case 1:
+		JsonObject ja = generateObtainLocationReport();
+		submitLocationReport(ja);
+		System.out.println("[CLIENT] Obtain location report");
+
+		//listenForResponse();
+		break;
+	case 2:
+		JsonObject je = generateObtainLocationReportHA();
+		submitLocationReport(je);
+		System.out.println("[HA CLIENT] Obtain location report");
+
+		break;
+	case 3:
+		JsonObject jo = generateObtainUsersAtLocationHA();
+		submitLocationReport(jo);
+		System.out.println("[HA CLIENT] Obtain users @ location");
+	case 4:
+		JsonObject joo = generateSubmitSharedKey();
+		submitLocationReport(joo);
+		System.out.println("[CLIENT] Submit shared key");
+
+	default:
+		break;
+	}}
+		
 	public void advanceEpoch() {
 		
 	}

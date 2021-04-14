@@ -3,6 +3,8 @@ package pt.ist.stdf.Simulation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.Entity;
@@ -42,7 +44,7 @@ public class Main {
 	public static final int GRID_Y = 50;
 	private static final int BLUETOOTH_RANGE = 1;
 	public static final int BLUETOOTH_PORT = 8080;
-	private static final int NUM_USERS_SIMULATE = 2;
+	private static final int NUM_USERS_SIMULATE = 5;
 	private Main instance;
 	
 	@Autowired
@@ -58,16 +60,11 @@ public class Main {
 	
 	private static ArrayList<ArtificialSimpleUser> users = new ArrayList<ArtificialSimpleUser>();
 
+	private ThreadPoolExecutor workers;
+
 	
 	private static boolean map[][];
-@PostConstruct
-public void setRepo() {
-	// TODO Auto-generated constructor stub
-	System.out.println("---------------------------------------");
-	System.out.println(userRepository.findAll());
-	System.out.println("---------------------------------------");
 
-}
 	public Main getInstance(){
 	if(instance!=null)
 		return instance;
@@ -130,9 +127,12 @@ public void setRepo() {
 		System.out.println("Exit");
 	}
 
-	private static void computeSimulation() {
+	private void computeSimulation() {
 		for (ArtificialSimpleUser user : users) {
-			user.startSimulation();
+			Runnable task = () -> {
+				user.startSimulation(4);
+			};
+			workers.execute(task);
 		}
 	}
 
@@ -160,6 +160,12 @@ public void setRepo() {
 			}
 		}**/
 	}
+
+	private void setUpWorkers() {
+		workers = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+		workers.setCorePoolSize(1);
+		workers.setMaximumPoolSize(NUM_USERS_SIMULATE);
+	}	
 
 		public void test(String[] args1) {
 		
@@ -217,6 +223,7 @@ public void setRepo() {
 				serverRepository.save(new SimulatedServer("private_key_server","public_key"));
 				
 				startMap();
+				setUpWorkers();
 				intiUsers();
 				computeSimulation();
 				System.out.println("B4 START -------------------------------------------------");

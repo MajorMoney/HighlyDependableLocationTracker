@@ -1,5 +1,6 @@
 package pt.ist.stdf.UserProgram.User;
 
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -7,11 +8,17 @@ import java.util.concurrent.ThreadPoolExecutor;
 import com.google.gson.JsonObject;
 
 import pt.ist.stdf.UserProgram.Bluetooth.Bluetooth;
+import pt.ist.stdf.UserProgram.User.ServerResponseListener.ServerResponseListener;
 
 public class SimpleUserMessageHandler extends Thread{
 	
 	private final int REQUEST_VALDATION = 0;
 	private final int RESPONSE_TO_VALIDATION = 1;
+	
+	//Server msgs
+	private final int SERVER_RESPONSE_OBTAIN_LOCATION_REPORT=6;
+	private final int SERVER_RESPONSE_OBTAIN_USERS_AT_LOCATION=7;
+	private final int SERVER_RESPONSE_OBTAIN_LOCATION_REPORT_HA=8;
 	
 	private SimpleUser user;
 	private Bluetooth bltth;
@@ -24,6 +31,14 @@ public class SimpleUserMessageHandler extends Thread{
 		
 		messages= new LinkedBlockingQueue<JsonObject>() ;
 		this.bltth.configureListner(messages);
+		
+		try {
+			user.starServerListener(messages);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		setUpWorkers();	
 	}
 	
@@ -46,6 +61,27 @@ public class SimpleUserMessageHandler extends Thread{
 		}else if(msgType==RESPONSE_TO_VALIDATION) {
 			Runnable task = () -> {
 				user.hadleResponseMessage(msg);
+			};
+			workers.execute(task);
+		}
+		else if(msgType==SERVER_RESPONSE_OBTAIN_LOCATION_REPORT) {
+			System.out.println("RECEIVED ON HANDLE MESSAGE");
+			Runnable task = () -> {
+				user.handleServerResponseObtainLocRepMessage(msg);
+			};
+			workers.execute(task);
+		}
+		else if(msgType==SERVER_RESPONSE_OBTAIN_USERS_AT_LOCATION) {
+			System.out.println("RECEIVED ON HANDLE MESSAGE");
+			Runnable task = () -> {
+				user.handleServerResponseObtainUsersAtLocationMessage(msg);
+			};
+			workers.execute(task);
+		}
+		else if(msgType==SERVER_RESPONSE_OBTAIN_LOCATION_REPORT_HA) {
+			System.out.println("RECEIVED ON SERVER_RESPONSE_OBTAIN_LOCATION_REPORT_HA");
+			Runnable task = () -> {
+				user.handleServerResponseObtainLocationMessageHA(msg);
 			};
 			workers.execute(task);
 		}

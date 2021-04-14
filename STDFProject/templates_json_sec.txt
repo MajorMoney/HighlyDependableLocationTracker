@@ -3,7 +3,7 @@
 submitLocationReport
 {
 userId,
-msgType,//2:Report Submission
+msgType,//3:Report Submission
 msgData{
 	epoch,	
 	position,
@@ -11,7 +11,64 @@ msgData{
 	reports {
 		msg, msg, msg}}
 }
-
+submitSharedKey{
+userId,
+msgType
+msgData{
+sharedKey
+}
+}
+obtainLocationReport{
+userId,
+msgType:1,
+msgData{
+epoch
+}
+}
+[SERVER]
+obtainLocationReportResponse{
+userId,
+msgType:6
+msgData{
+epoch
+position}
+}
+obtainLocationReportHA{
+userId,
+msgType:4,
+msgData{
+epoch,
+userId
+}
+}
+[SERVER]
+obtainLocationReportHAResponse{
+userId,
+msgType:8
+msgData{
+epoch,
+userId,
+position
+}
+}
+obtainUsersAtLocation{
+userId,
+msgType:2
+msgData{
+epoch,
+position
+}
+}
+[SERVER]
+obtainUsersAtLocationResponse{
+userId,
+msgType:7
+msgData{
+epoch,
+position,
+users: []
+}
+}
 
 
 //////////////////////Messages between users//////////////////////
