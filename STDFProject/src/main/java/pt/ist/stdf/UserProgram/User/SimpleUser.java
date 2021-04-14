@@ -92,7 +92,7 @@ public class SimpleUser extends User {
 		openServerConnection(); // Temporariariament aqui
 		messageHandler = new SimpleUserMessageHandler(this, bltth);
 		messageHandler.start();
-		System.out.println("User ID: "+getId()+" Was created at position " + loc.getCurrentLocation());
+		System.out.println("User ID: "+getId()+" Was created at position " + loc.getCurrentLocation()+" with keypair"+kp.toString()+"Key server"+ serverPK.toString());
 
 	}
 

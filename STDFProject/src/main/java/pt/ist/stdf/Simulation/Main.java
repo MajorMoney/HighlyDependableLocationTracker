@@ -3,6 +3,8 @@ package pt.ist.stdf.Simulation;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -99,7 +101,7 @@ public class Main {
 		return xy;
 	}
 
-	private void initRandomUser() throws NoSuchAlgorithmException {
+	private void initRandomUser(int id) throws NoSuchAlgorithmException {
 
 		int xy[] = getNewRadomPosition();
 
@@ -110,17 +112,23 @@ public class Main {
 		BluetoothSimulation bltth = new BluetoothSimulation(BLUETOOTH_RANGE,
 				ArtificialSimpleUser.convertPosToBluetoothPort(x, y), BLUETOOTH_PORT, GRID_X, GRID_Y);
 
-		KeyPair kp = CryptoUtils.generateKeyPair();
-
-		users.add(new ArtificialSimpleUser(serverHost, serverPort, loc, bltth, NUM_EPOCHS, kp));
+		SimulatedUser sim = userRepository.findById(id);
+		String pubKeyString = sim.getPublicKey() ;
+		String privKeyString = sim.getPrivateKey();
+		PrivateKey priKey = CryptoUtils.getPrivateKeyFromString(privKeyString);
+		System.out.println("Prepare emulation: "+priKey.toString());
+		PublicKey pubKey = CryptoUtils.getPublicKeyFromString(pubKeyString);
+		KeyPair kp = new KeyPair(pubKey,priKey);
+		SimulatedServer ss = serverRepository.findById(1).get();
+		PublicKey pubServer = CryptoUtils.getPublicKeyFromString(ss.getPublicKey());
+		users.add(new ArtificialSimpleUser(serverHost, serverPort, loc, bltth, NUM_EPOCHS, kp,pubServer));
 		System.out.println("Innited rand user");
 	}
 
 	private void intiUsers() throws NoSuchAlgorithmException {
 
-		for (int i = 0; i < NUM_USERS_SIMULATE; i++) {
-			initRandomUser();
-			saveUser();
+		for (int i = 1; i <= NUM_USERS_SIMULATE; i++) {
+			initRandomUser(i);
 			System.out.println("saved usser");
 		}
 		System.out.println("Exit");
@@ -169,21 +177,10 @@ public class Main {
 	@Bean
 	CommandLineRunner runner() {
 		return args -> {
-
-			Random rand = new Random();
-			Epoch epoch = new Epoch(rand.nextInt(10000));
-			Client client = new Client("teste3", "teste3");
-			ClientEpochId id = new ClientEpochId();
-			id.setClient(client);
-			id.setEpoch(epoch);
-			ClientEpoch c = new ClientEpoch();
-			c.setPrimaryKey(id);
-			clientRepository.save(client);
-			epochRepository.save(epoch);
-			clientEpochRepository.save(c);
 			Server s = new Server(clientRepository, epochRepository, clientEpochRepository);
-			serverRepository.save(new SimulatedServer("private_key_server", "public_key"));
-
+			DB_Seeder dbs = new DB_Seeder(userRepository, serverRepository, clientRepository, clientEpochRepository, epochRepository);
+			dbs.eraseRepos();
+			dbs.fillFull();
 			startMap();
 			setUpWorkers();
 			intiUsers();
@@ -192,7 +189,6 @@ public class Main {
 
 			s.Start();
 
-			userRepository.save(new SimulatedUser(" aaa ", "vvv"));
 		};
 	}
 }

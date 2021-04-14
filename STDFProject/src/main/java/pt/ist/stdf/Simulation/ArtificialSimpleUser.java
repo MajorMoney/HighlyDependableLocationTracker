@@ -102,61 +102,8 @@ public class ArtificialSimpleUser extends SimpleUser {
 		}
 	}
 
-private String privateKey;
-private String publicKey;
 	
-	public void _prepareEmulation(String privateKey, String publicKey) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException {
-		Base64.getDecoder().decode(privateKey);
-		PrivateKey priKey = getPrivateKeyFromString(privateKey);
-		System.out.println("Prepare emulation: "+priKey.toString());
-		PublicKey pubKey = getPublicKeyFromString(publicKey);
-		KeyPair kp = new KeyPair(pubKey,priKey);
-		
-		System.out.println("VERIFY EMULATION TRANSLATION");
-		String s = "ola amigos";
-		byte[] a = CryptoUtils.signMessageRSA(s.getBytes(), priKey);
-		boolean z =CryptoUtils.verifySignedMessagedRSA(s.getBytes(),a, pubKey);
-		System.out.println("IS GOOG: "+z);
-		
-		super.setKeyPair(null);
-		this.privateKey=privateKey;
-		this.publicKey=publicKey;
-		
-	}
-	
-	public PrivateKey getPrivateKeyFromString(String privateKey) {
-	    try {
-	        PKCS8EncodedKeySpec priPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey));
-	        KeyFactory keyf = KeyFactory.getInstance("RSA");
-	        PrivateKey priKey = keyf.generatePrivate(priPKCS8);
-	        return priKey;
-//	        Signature signature = Signature.getInstance("SHA512withRSA");
-//	        signature.initSign(priKey);
-//	        signature.update(content.getBytes(DEFAULT_CHARSET));
-//	        byte[] signed = signature.sign();
-//	        return Base64.encode(signed);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return null;
-	}
-	public PublicKey getPublicKeyFromString(String pub) {
-			try {
 
-				X509EncodedKeySpec publicz = new X509EncodedKeySpec(Base64.getDecoder().decode(pub));
-			    KeyFactory keyf;
-				keyf = KeyFactory.getInstance("RSA");
-				
-		        PublicKey pubKey = keyf.generatePublic(publicz);
-		        return pubKey;
-		        
-
-			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		return null;
-	}
 	
 
 	public void advanceEpoch() {

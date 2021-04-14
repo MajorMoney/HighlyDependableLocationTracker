@@ -36,7 +36,7 @@ public class DB_Seeder {
 		fillClientsWithSimulatedUsers();
 		fillEpochs();
 		fillClientEpochRepo();
-		//fillSimulatedServerRepo();
+		fillSimulatedServerRepo();
 		
 	}
 	

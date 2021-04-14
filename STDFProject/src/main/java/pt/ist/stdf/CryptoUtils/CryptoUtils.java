@@ -3,6 +3,7 @@ package pt.ist.stdf.CryptoUtils;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -12,6 +13,9 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
@@ -149,5 +153,34 @@ public class CryptoUtils {
 			e.printStackTrace();
 		}
 
+	}
+	public static PrivateKey getPrivateKeyFromString(String privateKey) {
+	    try {
+	        PKCS8EncodedKeySpec priPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey));
+	        KeyFactory keyf = KeyFactory.getInstance("RSA");
+	        PrivateKey priKey = keyf.generatePrivate(priPKCS8);
+	        return priKey;
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return null;
+	}
+	public static PublicKey getPublicKeyFromString(String pub) {
+			try {
+
+				X509EncodedKeySpec publicz = new X509EncodedKeySpec(Base64.getDecoder().decode(pub));
+			    KeyFactory keyf;
+				keyf = KeyFactory.getInstance("RSA");
+				
+		        PublicKey pubKey = keyf.generatePublic(publicz);
+		        return pubKey;
+		        
+
+			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		return null;
 	}
 }
