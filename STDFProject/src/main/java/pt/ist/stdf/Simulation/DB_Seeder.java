@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import pt.ist.stdf.CryptoUtils.CryptoUtils;
 
 public class DB_Seeder {
@@ -30,20 +31,48 @@ public class DB_Seeder {
 		this.epochRepo = epochRepo;
 	}
 	
+	public void fillFull() throws NoSuchAlgorithmException {
+		fillSimulatedUsers();
+		fillClientsWithSimulatedUsers();
+		fillEpochs();
+		fillClientEpochRepo();
+		//fillSimulatedServerRepo();
+		
+	}
+	
+	public void eraseRepos() {
+		clientEpochRepo.deleteAll();
+		simulatedServerRepo.deleteAll();
+		simulatedUserRepo.deleteAll();
+		clientRepo.deleteAll();
+		epochRepo.deleteAll();
+	}
 	
 	private void fillSimulatedUsers() throws NoSuchAlgorithmException {
 		for(int i=1;i<=NUM_SIMULATED_USERS;i++) {
 			KeyPair kp = CryptoUtils.generateKeyPair();
-			SimulatedUser user = new SimulatedUser();
-			user.setPrivateKey(kp.getPrivate().toString());
-			user.setPublicKey(kp.getPublic().toString());
+			System.out.println("Keypair : "+kp.toString()+" "+kp.getPrivate().getEncoded().toString());
+			String priv = java.util.Base64.getEncoder().encodeToString(kp.getPrivate().getEncoded());
+			String pub =  java.util.Base64.getEncoder().encodeToString(kp.getPublic().getEncoded());
+			System.out.println(priv.length());
+			System.out.println(pub.length());
+			//System.out.println(priv);
+			//System.out.println(pub);
+			//String pub ;
+			SimulatedUser user = new SimulatedUser(i,priv,pub);
+			user.setId(i);
+			System.out.println("Creating user with id; "+user.getId());
 			users.add(user);
+			simulatedUserRepo.save(user);
+
 	}
-		simulatedUserRepo.saveAll(users);
 }
 	private void fillClientsWithSimulatedUsers() {
+		int i=0;
 		for(SimulatedUser su : users) {
+			i++;
 			Client c = new Client(su.getPrivateKey(),su.getPublicKey());
+			c.setId(i);
 			clients.add(c);
 			clientRepo.save(c);
 		}
@@ -61,9 +90,26 @@ public class DB_Seeder {
 		for(Epoch ep: epochs) {
 			for(Client client : clients) {
 		ClientEpoch clientEpoch = new ClientEpoch();
-		clientEpoch.setClient(null);
+		clientEpoch.setClient(client);
+		clientEpoch.setEpoch(ep);
+		clientEpoch.setX_position(4);
+		clientEpoch.setY_position(4);
+		clientEpochRepo.save(clientEpoch);
 		}
+	}}
+	
+	private void fillSimulatedServerRepo() throws NoSuchAlgorithmException {
+		KeyPair kp = CryptoUtils.generateKeyPair();
+		SimulatedServer server = new SimulatedServer();
+		server.setId(1);
+		String priv = java.util.Base64.getEncoder().encodeToString(kp.getPrivate().getEncoded());
+		String pub =  java.util.Base64.getEncoder().encodeToString(kp.getPublic().getEncoded());
+		server.setPrivateKey(priv);
+		server.setPublicKey(pub);
+		simulatedServerRepo.save(server);
+
 	}
 	
 	
-	}}
+
+}

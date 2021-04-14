@@ -21,7 +21,7 @@ import javax.persistence.JoinColumn;
 public class Client {
 @Id
 @Column(name ="client_id")
-@GeneratedValue(strategy = GenerationType.AUTO)
+//@GeneratedValue(strategy = GenerationType.AUTO)
 private Integer client_id;
 
 private String publicKey;
@@ -65,6 +65,9 @@ public Integer getId() {
 	return client_id;
 }
 
+public void setId(Integer id) {
+	this.client_id= id;
+}
 
 public Set<ClientEpoch> getClientEpochs() {
 	return clientEpochs;

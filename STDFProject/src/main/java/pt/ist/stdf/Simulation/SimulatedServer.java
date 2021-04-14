@@ -11,7 +11,6 @@ import javax.persistence.Table;
 @Table(name="simulated_servers")
 public class SimulatedServer {
 @Id
-@GeneratedValue(strategy = GenerationType.AUTO)
 private Integer id;
 private String privateKey;
 private String publicKey;
@@ -23,6 +22,7 @@ public SimulatedServer(String priv, String pub) {
 	this.privateKey=priv;
 	this.publicKey=pub; 
 }
+
 public String getPrivateKey() {
 	return privateKey;
 }
@@ -38,7 +38,9 @@ public void setPublicKey(String publicKey) {
 public Integer getId() {
 	return id;
 }
-
+public void setId(int id) {
+	this.id = id;
+}
 
 
 }

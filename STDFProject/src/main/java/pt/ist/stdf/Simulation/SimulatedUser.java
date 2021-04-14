@@ -5,21 +5,21 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-
+import javax.validation.constraints.* ;
 @Entity
 @Table(name="simulated_users")
 public class SimulatedUser {
 @Id
-@GeneratedValue(strategy = GenerationType.AUTO)
-private Integer id;
+private int id;
+@Size(min=3,max=2400)
 private String privateKey;
+@Size(min=3,max=2400)
 private String publicKey;
 
 public SimulatedUser() {
 	
 }
-public SimulatedUser(Integer id,String priv, String pub) {
+public SimulatedUser(int id,String priv, String pub) {
 	this.privateKey=priv;
 	this.publicKey=pub; 
 	this.id=id;
@@ -40,8 +40,11 @@ public String getPublicKey() {
 public void setPublicKey(String publicKey) {
 	this.publicKey = publicKey;
 }
-public Integer getId() {
+public int getId() {
 	return id;
+}
+public void setId(int id) {
+	this.id = id;
 }
 
 
