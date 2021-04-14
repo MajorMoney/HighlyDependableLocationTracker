@@ -52,7 +52,7 @@ public class SimpleUserMessageHandler extends Thread{
 		int msgType;
 		msgType=msg.get("msgType").getAsInt();
 		if(msgType==REQUEST_VALDATION) {
-			System.out.println("Thread: "+Thread.currentThread()+" will respond Location Proof");
+//			System.out.println("RECEIVED REQUEST_VALDATION");
 			Runnable task = () -> {
 				user.respondLocationProof(msg);
 			};

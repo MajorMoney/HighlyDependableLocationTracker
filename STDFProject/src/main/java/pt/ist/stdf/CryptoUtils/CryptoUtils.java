@@ -39,7 +39,7 @@ public class CryptoUtils {
 		KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
 		keyGenerator.init(256);
 		SecretKey key = keyGenerator.generateKey();
-		System.out.println("AES KEY: " + new String(key.getEncoded(), 0, key.getEncoded().length));
+		//System.out.println("AES KEY: " + new String(key.getEncoded(), 0, key.getEncoded().length));
 		return key;
 	}
 
@@ -51,7 +51,7 @@ public class CryptoUtils {
 	public static IvParameterSpec generateIv() throws NoSuchAlgorithmException {
 		byte[] iv = new byte[16];
 		generateStrongSecureRandom(iv);
-		System.out.println("IV: " + new String(iv, 0, iv.length));
+		//System.out.println("IV: " + new String(iv, 0, iv.length));
 		return new IvParameterSpec(iv);
 	}
 
@@ -113,6 +113,8 @@ public class CryptoUtils {
 		try {
 			byte[] data = "Data to be signed".getBytes();
 			KeyPair kp = generateKeyPair();
+			System.out.println(kp.getPrivate());
+			System.out.println(kp.getPublic());
 			SecretKey aes=generateKeyAES();
 			PublicKey publicKey = kp.getPublic();
 			PrivateKey privateKey = kp.getPrivate();

@@ -90,7 +90,6 @@ public class BluetoothSimulation implements Bluetooth {
 					if (sendPort != port) {
 						DatagramPacket clientPacket = new DatagramPacket(clientBuffer, clientBuffer.length, localHost, sendPort);
 						socket.send(clientPacket);
-						System.out.printf("Send to: %s:%d %n", localHost, sendPort);
 					}
 				}
 			}

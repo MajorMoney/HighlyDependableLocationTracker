@@ -9,6 +9,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -21,6 +24,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.crypto.SecretKey;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -28,6 +33,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
+import pt.ist.stdf.CryptoUtils.CryptoUtils;
 import pt.ist.stdf.ServerProgram.Position;
 import pt.ist.stdf.ServerProgram.HandleClient.ClientMessage;
 import pt.ist.stdf.ServerProgram.HandleClient.ClientMessage.ClientMessageTypes;
@@ -40,7 +46,7 @@ public class SimpleUser extends User {
 
 	private static final int MAX_UDP_DATA_SIZE = (64 * 1024 - 1) - 8 - 20;
 	private static final int BUFFER_SIZE = MAX_UDP_DATA_SIZE;
-	
+
 	private final int REQUEST_VALDATION = 0;
 	private final int RESPONSE_TO_VALIDATION = 1;
 	private final int REPORT_SUBMISSION = 2;
@@ -50,7 +56,7 @@ public class SimpleUser extends User {
 	private final int SUBMIT_LOCATION_REPORT = 3;
 	private final int OBTAIN_LOCATION_REPORT_HA = 4;
 	private final int OBTAIN_USERS_AT_LOCATION_HA = 2;
-	private final int SUBMIT_SHARED_KEY=9;
+	private final int SUBMIT_SHARED_KEY = 9;
 
 //Test	
 	private final int MAX_NUM_REPORTS = 3;
@@ -64,27 +70,30 @@ public class SimpleUser extends User {
 	private SimpleUserMessageHandler messageHandler;
 	private ScheduledExecutorService timer;
 
-	private HashMap<Integer, ReportMaker> openReportMakers;
+	private HashMap<Integer, ReportList> openReportMakers;
 	private List<Integer> sentReports;
 
-	
 	private byte[] buffer = new byte[BUFFER_SIZE];
 	private Socket serverSocket;
 	private DataInputStream in;
 	private DataOutputStream out;
 
-	public SimpleUser(String serverHost, int serverPort, Location loc, Bluetooth bltth) {
-		super(serverHost, serverPort);
+	
+
+	public SimpleUser(String serverHost, int serverPort, Location loc, Bluetooth bltth, KeyPair kp,PublicKey serverPK) {
+		super(serverHost, serverPort,kp,serverPK);
 		this.loc = loc;
 		this.bltth = bltth;
-		openReportMakers = new HashMap<Integer, ReportMaker>();
+	
+		
+		openReportMakers = new HashMap<Integer, ReportList>();
 		sentReports = Collections.synchronizedList(new ArrayList<Integer>());
 		setUpTimer();
-		openServerConnection(); 		// Temporariariament aqui
+		openServerConnection(); // Temporariariament aqui
 		messageHandler = new SimpleUserMessageHandler(this, bltth);
 		messageHandler.start();
-		System.out.println("User created at position " + loc.getCurrentLocation() + " -->ID: " + this.getId());
-	
+		System.out.println("User ID: "+getId()+" Was created at position " + loc.getCurrentLocation());
+
 	}
 
 	// ##Starter methods##//
@@ -92,6 +101,8 @@ public class SimpleUser extends User {
 	private void setUpTimer() {
 		timer = Executors.newSingleThreadScheduledExecutor();
 	}
+
+	
 
 	private void openServerConnection() {
 		try {
@@ -102,8 +113,8 @@ public class SimpleUser extends User {
 			e.printStackTrace();
 		}
 	}
-	public void starServerListener( LinkedBlockingQueue<JsonObject> messages) throws IOException {
-		
+
+	public void starServerListener(LinkedBlockingQueue<JsonObject> messages) throws IOException {
 		serverResponseListener = new ServerResponseListener(serverSocket, messages);
 		serverResponseListener.start();
 	}
@@ -123,61 +134,53 @@ public class SimpleUser extends User {
 		if (!checkSentReports(msgId)) {
 			synchronized (sentReports) {
 				sentReports.add(msgId);
-				System.out.println("Report Sended with Id: " + msgId);
+				System.out.println("User ID:"+getId()+" Report Added with msgID: " + msgId + checkSentReports(msgId) + "\n ");
 			}
 		} else {
-			System.out.println("Strange, Report alredy sent with Id: " + msgId);
+			System.out.println("User ID:"+getId()+" Strange, Report alredy sent with Id: " + msgId+"\n");
 		}
 
 	}
 
 	private synchronized void removeSentReport(int msgId) {
-		if (checkSentReports(msgId)) {
-			synchronized (sentReports) {
-				sentReports.remove(sentReports.indexOf(msgId));
-			}
-			System.out.println("Reports Handled For Id: " + msgId);
-		} else {
-			System.out.println("Strange, Report doesnt exist with Id: " + msgId);
+		synchronized (sentReports) {
+			sentReports.remove(sentReports.indexOf(msgId));
+			System.out.println("User ID:"+getId()+" Report Destroyed with msgID: " + msgId + checkSentReports(msgId) + "\n ");
 		}
 	}
 
 	private synchronized boolean checkReportMaker(int msgId) {
+		boolean b;
 		synchronized (openReportMakers) {
-			if (openReportMakers.containsKey(msgId)) {
-				return true;
-			}
-			return false;
+			b = openReportMakers.containsKey(msgId);
 		}
+		if (b) {
+			return true;
+		}
+		return false;
 	}
 
-	private synchronized void addToReportMaker(int msgId, JsonObject msg) {
-		if (checkReportMaker(msgId)) {
-			synchronized (openReportMakers) {
-				openReportMakers.get(msgId).add(msg);
-			}
-			System.out.println("New report: " + msg + "\n Added with Id: " + msgId);
-		}
-	}
 
-	private synchronized void addToReportMaker(int msgId, JsonObject msg, ReportMaker rm) {
-		if (!checkReportMaker(msgId)) {
-			synchronized (openReportMakers) {
+	private synchronized void tryAddToReportMaker(int msgId, JsonObject msg, ReportList rm) {
+		synchronized (openReportMakers) {
+			if (!checkReportMaker(msgId)) {
 				openReportMakers.put(msgId, rm);
 				openReportMakers.get(msgId).add(msg);
+				startNewTimer(rm, msgId);
+				System.out.println("User ID:"+getId()+" ReportMaker Created with msgID: " + msgId + "\n ");
+			} else {
+				openReportMakers.get(msgId).add(msg);
+				System.out.println("User ID:"+getId()+" Report Added to ReportMaker with msgID: " + msgId  + "\n ");
 			}
-			System.out.println("New RM: ID " + msgId);
+
 		}
 	}
 
 	private synchronized void removeReportMaker(int msgId) {
-		if (checkReportMaker(msgId)) {
-			synchronized (openReportMakers) {
-				openReportMakers.remove(msgId);
-			}
-			System.out.println("RM removed with Id: " + msgId);
+		synchronized (openReportMakers) {
+			openReportMakers.remove(msgId);
 		}
-
+		System.out.println("User ID:"+getId()+" ReportMaker Destroyed with msgID: " + msgId + checkReportMaker(msgId) + "\n ");
 	}
 
 	// ###JSON Messages constructing functions##//
@@ -186,7 +189,6 @@ public class SimpleUser extends User {
 	private String generateLocationRequest() {
 
 		JsonObject msgData = new JsonObject();
-		// Perguntar ao stor se da para usar tempo (data:horas:minutos:segundos)
 		msgData.addProperty("epoch", "1");
 		msgData.add("position", loc.getCurrentLocationAsJsonArray());
 
@@ -205,8 +207,8 @@ public class SimpleUser extends User {
 	// Responds to a proof request
 	public void respondLocationProof(JsonObject msg) {
 
-		System.out.println("User ID:" + this.getId() + " received proof request from user ID:" + msg.get("userId"));
-		System.out.println("MSG: " + msg.toString());
+		System.out.println("User ID:" + this.getId() + " received proof request from user ID:" + msg.get("userId")
+				+ "\nMSG: " + msg.toString() + "\n");
 
 		// if position valid
 		// respond:
@@ -223,9 +225,6 @@ public class SimpleUser extends User {
 		msgData.addProperty("singature,", singature.toString());
 
 		msg.add("msgData", msgData);
-
-		System.out.println("Thread: " + Thread.currentThread() + " Handled the response");
-
 		bltth.respondRequest(msg);
 
 		// else
@@ -256,20 +255,15 @@ public class SimpleUser extends User {
 	public JsonObject generateSubmitLocationReport(JsonArray reports, int msgId) {
 		JsonObject msgData = new JsonObject();
 		msgData.addProperty("epoch", "111");
-		Random rand = new Random();
-		msgData.addProperty("position", new GridLocation(rand.nextInt(100), rand.nextInt(100)).getCurrentLocation());
-		msgData.addProperty("num_reports", 3);
+		msgData.addProperty("position", loc.getCurrentLocation());
+		msgData.addProperty("num_reports", reports.size());
 		msgData.add("reports", reports);
 
 		JsonObject obj = new JsonObject();
 
 		obj.addProperty("msgType", SUBMIT_LOCATION_REPORT);
-		Random r = new Random();
-		int low = 90;
-		int high = 101;
-		int result = r.nextInt(high - low) + low;
-		obj.addProperty("userId", result);
-		obj.addProperty("msgId", msgId);// Se calhar não recisa
+		obj.addProperty("userId", getId());
+		obj.addProperty("msgId", msgId);
 		obj.add("msgData", msgData);
 
 		return obj;
@@ -310,6 +304,7 @@ public class SimpleUser extends User {
 
 		return obj;
 	}
+
 	public JsonObject generateSubmitSharedKey() {
 		JsonObject msgData = new JsonObject();
 		msgData.addProperty("sharedKey", "thisisasharedkey");
@@ -323,16 +318,16 @@ public class SimpleUser extends User {
 		int result = r.nextInt(high - low) + low;
 		obj.addProperty("userId", result);
 		obj.add("msgData", msgData);
-		
+
 		return obj;
 	}
 
 	public JsonObject generateObtainUsersAtLocationHA() {
 		JsonObject msgData = new JsonObject();
 		Random rand = new Random();
-		GridLocation g =new GridLocation(4,4);
+		GridLocation g = new GridLocation(4, 4);
 		msgData.addProperty("position", g.getCurrentLocation());
-		System.out.println("GRID LOCATION: "+g.getCurrentLocation());
+		System.out.println("GRID LOCATION: " + g.getCurrentLocation());
 		msgData.addProperty("epoch", 1);
 		JsonObject obj = new JsonObject();
 
@@ -346,22 +341,7 @@ public class SimpleUser extends User {
 
 		return obj;
 	}
-	
-	public
-	void listenForResponse() {
-		try {
-			in.read(buffer,0,buffer.length);
-			String s = new String(buffer,StandardCharsets.UTF_8);
-			System.out.println("Received msg from server on client " + getId()+":  "+s);
-			
-			JsonObject msg = JsonParser.parseString(s.trim()).getAsJsonObject();
-			//ClientMessage cm = new ClientMessage(buffer,server,this);
-			
-		}catch(Exception e) {
-			
-		}
-	}
-	
+
 
 	// ##General Procedure Methods##//
 
@@ -381,75 +361,72 @@ public class SimpleUser extends User {
 	public void hadleResponseMessage(JsonObject msg) {
 		msg.remove("senderPort");
 
-		System.out.println(
-				"User ID:" + this.getId() + " received response to proof request! Sender ID:" + msg.get("userId"));
-		System.out.println("MSG:" + msg.toString());
+		System.out.println("User ID:" + this.getId() + " received response to proof request! Sender ID:"
+				+ msg.get("userId") + "\n\"MSG:" + msg.toString() + "\n");
 
 		int msgId = msg.get("msgId").getAsInt();
 		if (checkSentReports(msgId)) {
-			if (!checkReportMaker(msgId)) {
-				ReportMaker rm = new ReportMaker(msgId);
-				addToReportMaker(msgId, msg, rm);
-				startNewTimer(rm, msgId);
-			} else {
-				addToReportMaker(msgId, msg);
-			}
+				ReportList rm = new ReportList(msgId);
+				tryAddToReportMaker(msgId, msg, rm);		
 		}
 	}
 
-	
 	public void handleServerResponseObtainLocRepMessage(JsonObject msg) {
 		int userId = msg.get("userId").getAsInt();
 		JsonObject msgData = msg.get("msgData").getAsJsonObject();
 		int epoch = msgData.get("epoch").getAsInt();
 		String[] positionString1 = msgData.get("position").getAsString().split(" ");
-		GridLocation gp = new GridLocation((int)positionString1[0].charAt(positionString1[0].length()-1),(int)positionString1[1].charAt(positionString1[1].length()-1));
-		System.out.println("[CLIENT FINAL: OBTAINS USER LOCATION "+userId+" epoch asked: "+epoch+"->> position returned: "+gp.getCurrentLocation());
-	
+		GridLocation gp = new GridLocation((int) positionString1[0].charAt(positionString1[0].length() - 1),
+				(int) positionString1[1].charAt(positionString1[1].length() - 1));
+		System.out.println("[CLIENT FINAL: OBTAINS USER LOCATION " + userId + " epoch asked: " + epoch
+				+ "->> position returned: " + gp.getCurrentLocation());
+
 	}
+
 	public void handleServerResponseObtainUsersAtLocationMessage(JsonObject msg) {
 		int userId = msg.get("userId").getAsInt();
 		JsonObject msgData = msg.get("msgData").getAsJsonObject();
 		int epoch = msgData.get("epoch").getAsInt();
 		String[] positionString1 = msgData.get("position").getAsString().split(" ");
-		GridLocation gp = new GridLocation((int)positionString1[0].charAt(positionString1[0].length()-1),(int)positionString1[1].charAt(positionString1[1].length()-1));
+		GridLocation gp = new GridLocation((int) positionString1[0].charAt(positionString1[0].length() - 1),
+				(int) positionString1[1].charAt(positionString1[1].length() - 1));
 		JsonArray users = msgData.get("users").getAsJsonArray();
-		for(int i=0;i<users.size();i++)
-		{
-			System.out.println("Found user:"+users.get(i).getAsInt());
+		for (int i = 0; i < users.size(); i++) {
+			System.out.println("Found user:" + users.get(i).getAsInt());
 		}
-		
-		System.out.println("[CLIENT FINAL: OBTAINS USERS AT LOCATION "+userId+" epoch asked: "+epoch+"->> position returned: "+gp.getCurrentLocation());
-	
-	}
 
+		System.out.println("[CLIENT FINAL: OBTAINS USERS AT LOCATION " + userId + " epoch asked: " + epoch
+				+ "->> position returned: " + gp.getCurrentLocation());
+
+	}
 
 	public void handleServerResponseObtainLocationMessageHA(JsonObject msg) {
 		int userId = msg.get("userId").getAsInt();
 		JsonObject msgData = msg.get("msgData").getAsJsonObject();
 		int epoch = msgData.get("epoch").getAsInt();
 		String[] positionString1 = msgData.get("position").getAsString().split(" ");
-		GridLocation gp = new GridLocation(Integer.parseInt(String.valueOf(positionString1[0].charAt(positionString1[0].length()-1))),Integer.parseInt(String.valueOf(positionString1[1].charAt(positionString1[1].length()-1))));
-		System.out.println("[CLIENT HA FINAL: OBTAINS USER LOCATION "+userId+" epoch asked: "+epoch+"->> position returned: "+gp.getCurrentLocation());
-	
-		
+		GridLocation gp = new GridLocation(
+				Integer.parseInt(String.valueOf(positionString1[0].charAt(positionString1[0].length() - 1))),
+				Integer.parseInt(String.valueOf(positionString1[1].charAt(positionString1[1].length() - 1))));
+		System.out.println("[CLIENT HA FINAL: OBTAINS USER LOCATION " + userId + " epoch asked: " + epoch
+				+ "->> position returned: " + gp.getCurrentLocation());
+
 	}
 
-	
-	private void startNewTimer(ReportMaker rm, int msgId) {
+	private void startNewTimer(ReportList rm, int msgId) {
 		timer.schedule(new Runnable() {
 			public void run() {
 				try {
-					System.out.println("Timed Thread Executing...");
 					removeSentReport(msgId);
 					removeReportMaker(msgId);
 					submitLocationReport(generateSubmitLocationReport(rm.getAllReports(), msgId));
-					System.out.println(generateSubmitLocationReport(rm.getAllReports(), msgId).toString());
+					System.out.println("User ID:" + getId() + " Sent Location Request With Proof Reports \n"
+							+ generateSubmitLocationReport(rm.getAllReports(), msgId).toString() + "\n");
 				} catch (Error e) {
 					e.printStackTrace();
 				}
 			}
-		}, 2000, TimeUnit.MILLISECONDS);
+		}, 5000, TimeUnit.MILLISECONDS);
 	}
 
 	public void submitLocationReport(JsonObject j) {
@@ -469,8 +446,6 @@ public class SimpleUser extends User {
 			e.printStackTrace();
 		}
 	}
-
-
 
 //	// Classe a chamar no main para simular o user
 //	public void testSomethingWithServer() {

@@ -6,13 +6,11 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class ReportMaker {
+public class ReportList {
 
-	private int msgID;
 	private List<JsonObject> list;
 
-	public ReportMaker(int msgId) {
-		this.msgID = msgId;
+	public ReportList(int msgId) {
 		list = new ArrayList<JsonObject>();
 	}
 
