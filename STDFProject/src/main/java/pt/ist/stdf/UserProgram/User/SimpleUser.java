@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -207,6 +208,13 @@ public class SimpleUser extends User {
 	}
 
 	// Responds to a proof request
+	private static StringBuilder getMimeBuffer() {
+	    StringBuilder buffer = new StringBuilder();
+	    for (int count = 0; count < 10; ++count) {
+	        buffer.append(UUID.randomUUID().toString());
+	    }
+	    return buffer;
+	}
 	public void respondLocationProof(JsonObject msg) {
 
 		System.out.println("User ID:" + this.getId() + " received proof request from user ID:" + msg.get("userId")
@@ -220,9 +228,16 @@ public class SimpleUser extends User {
 		msgData.addProperty("position", loc.getCurrentLocation());
 		msgData.addProperty("signer",getId());
 		try {
-			byte[] signature=CryptoUtils.signMessageRSA(msgData.toString().getBytes(), getKp().getPrivate());
-			CryptoUtils.preHash(signature);
-			msg.addProperty("signature",new String( Base64.getEncoder().encode(signature)));
+			//char[] padding = { '=' };
+			byte[] signature =msgData.toString().getBytes();
+			//CryptoUtils.preHash(signature);
+			signature=CryptoUtils.signMessageRSA(signature, getKp().getPrivate());
+			byte[] encodedAsBytes = signature;
+			String encodedMime = Base64.getMimeEncoder().withoutPadding().encodeToString(encodedAsBytes);
+			//String returnValue = new String(Base64.getUrlEncoder().encode(signature)).substring(0,new String( Base64.getUrlEncoder().encode(signature)).length()-2).replace('+', '-').replace('/', '_');
+			//new String(signature)
+			msg.addProperty("signature",encodedMime);
+			msg.addProperty("pk", getKp().getPublic().toString());
 		} catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}

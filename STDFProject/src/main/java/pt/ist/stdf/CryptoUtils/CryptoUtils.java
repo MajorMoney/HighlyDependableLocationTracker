@@ -132,7 +132,7 @@ public class CryptoUtils {
 
 	public static PublicKey getPublicKeyFromString(String pub) {
 		try {
-
+			pub.replace('\n', ' ');
 			X509EncodedKeySpec publicz = new X509EncodedKeySpec(Base64.getDecoder().decode(pub));
 			KeyFactory keyf;
 			keyf = KeyFactory.getInstance("RSA");
