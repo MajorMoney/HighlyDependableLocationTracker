@@ -121,7 +121,7 @@ public class Main {
 		KeyPair kp = new KeyPair(pubKey,priKey);
 		SimulatedServer ss = serverRepository.findById(1).get();
 		PublicKey pubServer = CryptoUtils.getPublicKeyFromString(ss.getPublicKey());
-		users.add(new ArtificialSimpleUser(serverHost, serverPort, loc, bltth, NUM_EPOCHS, kp,pubServer));
+		users.add(new ArtificialSimpleUser(serverHost, serverPort, loc, bltth, NUM_EPOCHS, kp,pubServer,id));
 		System.out.println("Innited rand user");
 	}
 

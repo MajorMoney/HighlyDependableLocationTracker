@@ -73,7 +73,7 @@ public class ClientConnection extends Thread{
 			
 			JsonObject msg = JsonParser.parseString(s.trim()).getAsJsonObject();
 			messages.put(msg);
-//			ClientMessage cm = new ClientMessage(buffer,server,this);
+			ClientMessage cm = new ClientMessage(buffer,server,this);
 //			System.out.println(cm);
 			/**cm.PrintSubmitLocationReport();
 			id = cm.getUserId();

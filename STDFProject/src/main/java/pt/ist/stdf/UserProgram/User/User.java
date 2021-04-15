@@ -19,14 +19,14 @@ public abstract class User {
 	private PublicKey serverPK;
 	
 	
-	public User(String serverHost, int serverPort,KeyPair kp,PublicKey serverPK) {
+	public User(String serverHost, int serverPort,KeyPair kp,PublicKey serverPK,int id) {
 		this.serverHost=serverHost;
 		this.serverPort = serverPort;
 		this.kp = kp;
 		this.serverPK=serverPK;
+		this.id=id;
 		createAes();
 		connectServer();
-		getIdFromServer();
 	}
 	
 	public KeyPair getKp() {

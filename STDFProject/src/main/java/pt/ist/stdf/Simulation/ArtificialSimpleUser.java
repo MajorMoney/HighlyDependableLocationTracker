@@ -32,8 +32,8 @@ public class ArtificialSimpleUser extends SimpleUser {
 
 	
 	public ArtificialSimpleUser(String serverHost, int serverPort, GridLocation loc, Bluetooth bltth,
-			int numEpochToSimulate, KeyPair kp,PublicKey serverPK) {
-		super(serverHost, serverPort, loc, bltth, kp,serverPK);
+			int numEpochToSimulate, KeyPair kp,PublicKey serverPK,int id) {
+		super(serverHost, serverPort, loc, bltth, kp,serverPK,id);
 		System.out.println("Init user");
 		this.numEpochToSimulate = numEpochToSimulate;
 	}

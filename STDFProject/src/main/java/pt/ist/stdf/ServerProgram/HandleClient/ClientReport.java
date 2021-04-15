@@ -62,8 +62,13 @@ public class ClientReport {
 	}
 	private void handleMessageData(JsonObject msgData) {
 			epoch = msgData.get("epoch").getAsInt();
+			verifySingner();
 	}
 	
+	private void verifySingner() {
+		
+	}
+
 	public boolean isValid() {
 		return true;
 	}

@@ -82,8 +82,8 @@ public class SimpleUser extends User {
 
 	
 
-	public SimpleUser(String serverHost, int serverPort, Location loc, Bluetooth bltth, KeyPair kp,PublicKey serverPK) {
-		super(serverHost, serverPort,kp,serverPK);
+	public SimpleUser(String serverHost, int serverPort, Location loc, Bluetooth bltth, KeyPair kp,PublicKey serverPK,int id) {
+		super(serverHost, serverPort,kp,serverPK, id);
 		this.loc = loc;
 		this.bltth = bltth;
 	
@@ -239,7 +239,7 @@ public class SimpleUser extends User {
 
 			JsonObject msgData = new JsonObject();
 			Random r = new Random();
-			msgData.addProperty("epoch", 111 + r.nextInt(5));
+			msgData.addProperty("epoch", 1 + r.nextInt(5));
 			JsonObject obj = new JsonObject();
 			obj.addProperty("msgType", REPORT_OTHER_USER);
 			int low = 90;
@@ -255,7 +255,7 @@ public class SimpleUser extends User {
 	// Generate report message for server
 	public JsonObject generateSubmitLocationReport(JsonArray reports, int msgId) {
 		JsonObject msgData = new JsonObject();
-		msgData.addProperty("epoch", "111");
+		msgData.addProperty("epoch", "1");
 		msgData.addProperty("position", loc.getCurrentLocation());
 		msgData.addProperty("num_reports", reports.size());
 		msgData.add("reports", reports);

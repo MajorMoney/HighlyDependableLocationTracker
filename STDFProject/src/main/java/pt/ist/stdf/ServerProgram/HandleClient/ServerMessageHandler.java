@@ -37,13 +37,13 @@ public class ServerMessageHandler extends Thread {
 		msgType = msg.get("msgType").getAsInt();
 		if (msgType == 1) {
 			Runnable task = () -> {
-				//CHAMAR HANDLER
-				//server.HandleX(msg)
+				// CHAMAR HANDLER
+				// server.HandleX(msg)
 			};
 			workers.execute(task);
 		} else if (msgType == 2) {
 			Runnable task = () -> {
-				//CHAMAR HANDLER
+				// CHAMAR HANDLER
 			};
 			workers.execute(task);
 		}
@@ -60,5 +60,4 @@ public class ServerMessageHandler extends Thread {
 			}
 		}
 	}
-
 }

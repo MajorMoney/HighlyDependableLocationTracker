@@ -235,11 +235,7 @@ public class ClientMessage {
 		String[] positionString = msgData.get("position").getAsString().split(" ");
 		position = new Position((int)positionString[0].charAt(positionString[0].length()-1),(int)positionString[1].charAt(positionString[1].length()-1));
 		num_reports = msgData.get("num_reports").getAsInt();
-		System.out.println("Received reports: "+num_reports);
 		reports = jsonArrayToList(num_reports,msgData.get("reports").getAsJsonArray());
-		
-		
-		
 		checkIfValidSubmitLocationReport();
 	}
 	

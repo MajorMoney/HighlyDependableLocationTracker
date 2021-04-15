@@ -65,11 +65,6 @@ public class Server {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		Server s = new Server();
-		s.Start();
-	}
-
 	public List<ClientEpoch> getAllClientEpochs(){
 		return clientEpochRepository.findAll();
 	}
