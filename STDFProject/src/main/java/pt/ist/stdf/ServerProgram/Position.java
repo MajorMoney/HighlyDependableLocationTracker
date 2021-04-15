@@ -13,7 +13,6 @@ public class Position {
 		this.y=y;
 		position[0]=x;
 		position[1]=y;
-		
 	}
 	
 	public Position(JsonArray jsonArray)

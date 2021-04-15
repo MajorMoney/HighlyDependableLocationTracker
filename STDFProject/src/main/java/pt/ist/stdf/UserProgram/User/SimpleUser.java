@@ -221,16 +221,18 @@ public class SimpleUser extends User {
 		msgData.addProperty("signer",getId());
 		try {
 			//char[] padding = { '=' };
-			byte[] signature =msgData.toString().getBytes();
+//			byte[] signature =msgData.toString().getBytes();
 			//CryptoUtils.preHash(signature);
-			signature=CryptoUtils.signMessageRSA(signature, getKp().getPrivate());
-			byte[] encodedAsBytes = signature;
-			String encodedMime = Base64.getMimeEncoder().withoutPadding().encodeToString(encodedAsBytes);
+			String s = msgData.toString();
+			String signedData = CryptoUtils.sign(s,getKp().getPrivate());
+//			signature=CryptoUtils.signMessageRSA(signature, getKp().getPrivate());
+//			byte[] encodedAsBytes = signature;
+//			String encodedMime = Base64.getMimeEncoder().withoutPadding().encodeToString(encodedAsBytes);
 			//String returnValue = new String(Base64.getUrlEncoder().encode(signature)).substring(0,new String( Base64.getUrlEncoder().encode(signature)).length()-2).replace('+', '-').replace('/', '_');
 			//new String(signature)
-			msg.addProperty("signature",encodedMime);
+			msg.addProperty("signature",signedData);
 			msg.addProperty("pk", getKp().getPublic().toString());
-		} catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
+		} catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		bltth.respondRequest(msg);

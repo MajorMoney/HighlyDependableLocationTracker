@@ -11,7 +11,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import pt.ist.stdf.ServerProgram.Position;
-import pt.ist.stdf.ServerProgram.ServerGrid;
 import pt.ist.stdf.ServerProgram.HandleClient.ClientConnection;
 
 @AssociationOverrides({

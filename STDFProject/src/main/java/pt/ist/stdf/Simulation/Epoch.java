@@ -13,7 +13,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import pt.ist.stdf.ServerProgram.Position;
-import pt.ist.stdf.ServerProgram.ServerGrid;
 import pt.ist.stdf.ServerProgram.HandleClient.ClientConnection;
 
 @Entity
@@ -24,7 +23,7 @@ public class Epoch {
 	@Column(name ="epoch_id")
 	public int epoch_id;
 	@Transient
-	public ServerGrid grid;
+	//public ServerGrid grid;
 	
 	@OneToMany(mappedBy = "primaryKey.epoch",
 			cascade = CascadeType.ALL)	
@@ -34,7 +33,7 @@ public class Epoch {
 	}
 	public Epoch(int id) {
 		epoch_id=id;
-		grid = new ServerGrid();
+		//grid = new ServerGrid();
 	}
 	
 	public int getId() {
@@ -43,16 +42,16 @@ public class Epoch {
 	public void setId(int id) {
 		this.epoch_id = id;
 	}
-	public Position getClientPosition(ClientConnection clientConnection)
-	{
-		Position pos = grid.getClientPosition(clientConnection);
-		return pos;
-		
-	}
-	public void AddClient(Position position, ClientConnection clientConnection)
-	{
-		grid.AddClientToGrid(position, clientConnection);
-	}
+//	public Position getClientPosition(ClientConnection clientConnection)
+//	{
+//		Position pos = grid.getClientPosition(clientConnection);
+//		return pos;
+//		
+//	}
+//	public void AddClient(Position position, ClientConnection clientConnection)
+//	{
+//		grid.AddClientToGrid(position, clientConnection);
+//	}
 
 
 

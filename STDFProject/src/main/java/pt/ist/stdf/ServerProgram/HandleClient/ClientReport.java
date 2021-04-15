@@ -42,43 +42,17 @@ public class ClientReport {
 		msgType = ClientMessageTypes.getMessageTypeByInt(msg.get("msgType").getAsInt());
 		if (msgType.equals(ClientMessageTypes.userReport)) {
 			JsonObject msgData = msg.get("msgData").getAsJsonObject();
-			byte[] signature = Base64.getMimeDecoder().decode(msg.get("signature").toString().getBytes());
-			String decodedMime = new String(signature);
-		System.out.println(msg.get("pk").toString());
-				handleMessageData(msgData, decodedMime);
-		
-
-			
-			
-		}
-	}
-
-	private void readMessage() {
-		String s = new String(buffer, StandardCharsets.UTF_8);
-		System.out.println("Report: " + s);
-		Gson gson = new Gson();
-		JsonReader reader = new JsonReader(new StringReader(s));
-		reader.setLenient(true);
-		JsonElement tree = gson.fromJson(reader, JsonElement.class);
-		// JsonElement tree = JsonParser.parseString(s).getAsJsonObject();
-		if (tree.isJsonObject()) {
-			JsonObject msg = tree.getAsJsonObject();
-			userId = msg.get("userId").getAsInt();
-			msgType = ClientMessageTypes.getMessageTypeByInt(msg.get("msgType").getAsInt());
-			if (msgType.equals(ClientMessageTypes.userReport)) {
-				JsonObject msgData = msg.get("msgData").getAsJsonObject();
-				//handleMessageData(msgData);
-			} else
-				System.out.println("Invalid report");
+			String signature = msg.get("signature").getAsString();
+			handleMessageData(msgData, signature);
 
 		}
 	}
 
-	private void handleMessageData(JsonObject msgData,String decodedMime) {
+	private void handleMessageData(JsonObject msgData, String signature) {
 		System.out.println(msgData);
 		epoch = msgData.get("epoch").getAsInt();
 		verifySender(msgData.get("signer"));
-		verifySingner(msgData, decodedMime);
+		verifySingner(msgData, signature);
 	}
 
 	private void verifySender(JsonElement jsonElement) {
@@ -87,32 +61,34 @@ public class ClientReport {
 			isNotValid();
 	}
 
-	private void verifySingner(JsonObject msgData,String decodedMime) {
+	private void verifySingner(JsonObject msgData, String signature) {
 		String pks = cm.server.findClientById(userId).get().getPublicKey();
 		PublicKey pk = CryptoUtils.getPublicKeyFromString(pks);
-		System.out.println(pk.toString());
 		try {
-			byte[] data =msgData.toString().getBytes(); 
-			//CryptoUtils.preHash(data);
 			
-			if (CryptoUtils.verifySignedMessagedRSA(data,decodedMime.getBytes(), pk))
-				System.out.println("SERVER - Verified signature from signer: " + userId + " on Message from user ID: "
-						+ cm.getUserId());
-			else
+			String jsonObjStr = msgData.toString();
+			boolean b = CryptoUtils.verify(jsonObjStr, signature, pk);
+
+			if (!b)
 				isNotValid();
+			System.out.println("SERVER - Verified " + b + " signature from signer: " + userId
+					+ " on Message from user ID: " + cm.getUserId());
 		} catch (InvalidKeyException e) {
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (SignatureException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
 	}
 
 	public void isNotValid() {
 		valid = false;
 	}
-	
+
 	public boolean getValid() {
 		return valid;
 	}

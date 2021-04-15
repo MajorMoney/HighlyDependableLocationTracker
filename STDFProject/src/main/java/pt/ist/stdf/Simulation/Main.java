@@ -143,7 +143,7 @@ public class Main {
 		for (ArtificialSimpleUser user : users) {
 			Runnable task = () -> {
 				try {
-					user.startSimulation(4);
+					user.startSimulation(5);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

@@ -202,8 +202,9 @@ public class ClientMessage {
 	private void submitLocationReport(JsonObject msgData) {
 		epoch = msgData.get("epoch").getAsInt();
 		String[] positionString = msgData.get("position").getAsString().split(" ");
-		position = new Position((int) positionString[0].charAt(positionString[0].length() - 1),
-				(int) positionString[1].charAt(positionString[1].length() - 1));
+		position = new Position((int) Integer.parseInt(positionString[0].substring(positionString[0].length()-1,positionString[0].length())),
+				(int) Integer.parseInt(positionString[1].substring(positionString[1].length()-1,positionString[1].length())));
+		System.out.println("\n"+msgData.get("position")+"\n");
 		num_reports = msgData.get("num_reports").getAsInt();
 		reports = jsonArrayToList(num_reports, msgData.get("reports").getAsJsonArray());
 		checkIfValidSubmitLocationReport();

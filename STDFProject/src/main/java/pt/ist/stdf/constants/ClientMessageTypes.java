@@ -2,11 +2,11 @@ package pt.ist.stdf.constants;
 
 
 public enum ClientMessageTypes{ 
-	obtainLocationReport(1),
+	userReport(1),
 	obtainUserAtLocation(2),
 	REPORT_SUBMISSION(3),
 	obtainLocationReportHA(4),
-	userReport(5),
+	obtainLocationReport(5),
 	serverResponseObtainLocationReport(6),
 	serverResponseObtainUsersAtLocation(7),
 	serverResponseObtainLocationReportHA(8),
@@ -26,7 +26,7 @@ public enum ClientMessageTypes{
 	public static ClientMessageTypes getMessageTypeByInt(int val) {
 		switch (val) {
 		case 1:
-			return ClientMessageTypes.obtainLocationReport;
+			return ClientMessageTypes.userReport;
 		case 2:
 			return ClientMessageTypes.obtainUserAtLocation;
 		case 3:
@@ -34,7 +34,7 @@ public enum ClientMessageTypes{
 		case 4:
 			return ClientMessageTypes.obtainLocationReportHA;
 		case 5:
-			return ClientMessageTypes.userReport;
+			return ClientMessageTypes.obtainLocationReport;
 		case 6:
 			return ClientMessageTypes.serverResponseObtainLocationReport;
 		case 7:
