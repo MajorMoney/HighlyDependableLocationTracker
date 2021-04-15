@@ -24,7 +24,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 
@@ -42,8 +49,6 @@ public class SimpleUser extends User {
 	private static final int BUFFER_SIZE = MAX_UDP_DATA_SIZE;
 
 	// Server messages
-
-
 
 //Test	
 	private final int MAX_NUM_REPORTS = 3;
@@ -65,8 +70,6 @@ public class SimpleUser extends User {
 	private Socket serverSocket;
 	private DataInputStream in;
 	private DataOutputStream out;
-
-	
 
 	
 	public SimpleUser(String serverHost, int serverPort, Location loc, Bluetooth bltth, KeyPair kp,PublicKey serverPK,int id) {
@@ -297,29 +300,32 @@ public class SimpleUser extends User {
 		return obj;
 	}
 
-
-	public JsonObject generateSubmitSharedKey() throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, UnsupportedEncodingException {
+	public JsonObject generateSubmitSharedKey() throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, UnsupportedEncodingException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+		
+		JsonObject msg = new JsonObject();
+		Gson gson = new Gson();
+		msg.addProperty("userId", getId());
+		msg.addProperty("msgType",  ClientMessageTypes.submitSharedKey.getValue());
+		
+		
+		
+		SecretKey key = CryptoUtils.generateKeyAES();
+		//store key in safe way
+		
+		JsonObject cipheredMsgData = new JsonObject();
+		String key_s = java.util.Base64.getEncoder().encodeToString(key.getEncoded());
+		String signedKey = CryptoUtils.sign(key_s, getKp().getPrivate());
+		
+		cipheredMsgData.addProperty("sharedKeySigned", signedKey);
+		cipheredMsgData.addProperty("sharedKeyNotSigned", key_s);
+		
+		byte[] cipheredData = CryptoUtils.cipherKey(gson.toJson(cipheredMsgData).getBytes(), getServerPK());
+		
 		JsonObject msgData = new JsonObject();
-		//String signedData = CryptoUtils.sign("amigos",getKp().getPrivate());
-		msgData.addProperty("sharedKey",   java.util.Base64.getEncoder().encodeToString(getKp().getPublic().getEncoded()));
-		JsonObject toBesigned = new JsonObject();
-		toBesigned.addProperty("aa", "bb");
-		toBesigned.addProperty("cc", "bb");
-		msgData.add("toBeSigned", toBesigned);
-		String s = toBesigned.toString();
-		String signedData = CryptoUtils.sign(s,getKp().getPrivate());
-		msgData.addProperty("signedData", signedData);
-		msgData.addProperty("plaintext", s);
+		msgData.addProperty("cipheredMsgData", Base64.getEncoder().encodeToString(cipheredData));
+		msg.add("msgData",  msgData);
 		
-		
-		JsonObject obj = new JsonObject();
-
-		obj.addProperty("msgType", ClientMessageTypes.submitSharedKey.getValue());
-
-		obj.addProperty("userId", getId());
-		obj.add("msgData", msgData);
-
-		return obj;
+		return msg;
 	}
 
 
@@ -408,7 +414,7 @@ public class SimpleUser extends User {
 			}
 		}, 2000, TimeUnit.MILLISECONDS);
 	}
-
+	
 	public void submitLocationReport(JsonObject j) {
 		try {
 			out.write(j.toString().getBytes(StandardCharsets.UTF_8));

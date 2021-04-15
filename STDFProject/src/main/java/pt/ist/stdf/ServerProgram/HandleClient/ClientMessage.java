@@ -212,33 +212,38 @@ public class ClientMessage {
 	
 	private void submitSharedKey(JsonObject msgData) throws Exception
 	{
-String pubKey = server.findClientById(userId).get().getPublicKey();
-		
-		
+		Client c;
+		String pubKey = server.findClientById(userId).get().getPublicKey();
 		PublicKey pub = CryptoUtils.getPublicKeyFromString(pubKey);
 		
-		String signed = msgData.get("signedData").getAsString();
-		JsonObject tobeSigned =msgData.get("toBeSigned").getAsJsonObject();
-		String jsonObjStr = tobeSigned.toString();
+		String ciphered = msgData.get("cipheredMsgData").getAsString();
+		String unciphered = Base64.getEncoder().encodeToString( CryptoUtils.decipherKey(ciphered.getBytes(), 
+				server.getKeypair().getPrivate()) );
+		JsonObject convertedObject = new Gson().fromJson(unciphered, JsonObject.class);
 		
-		boolean b = CryptoUtils.verify(jsonObjStr, signed, pub);
+		String signed = convertedObject.get("sharedKeySigned").getAsString();
+		String tobeSigned = convertedObject.get("sharedKeyNotSigned").getAsString();
+	
+		boolean b = CryptoUtils.verify(tobeSigned, signed, pub);
 		
 		if(b)
 			System.out.println("Received GOOOD Shared key from client "+userId+ " : "+b+ "");
 		else {
 			System.out.println("Naoc orreu bem a translation");
 		}
-		Client c = server.findClientById(userId).get();
+		
+		c = server.findClientById(userId).get();
 		if (c != null)
 			System.out.println("Updated/added client");
 		else {
-			System.out.println("DId not work");
-
+			System.out.println("Did not work");
 		}
-		System.out.println("Comparing to key: " + c.getSharedKey());
-	//c.setSharedKey(sharedKey);
-	//	server.updateClientSharedKey(c);
-		System.out.println("DONE /added client");
+		
+		
+//		System.out.println("Comparing to key: " + c.getSharedKey());
+//		c.setSharedKey(sharedKey);
+//		server.updateClientSharedKey(c);
+//		System.out.println("DONE /added client");
 
 	}
 

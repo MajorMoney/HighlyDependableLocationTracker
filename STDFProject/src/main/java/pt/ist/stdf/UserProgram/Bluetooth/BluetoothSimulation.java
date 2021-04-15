@@ -84,8 +84,8 @@ public class BluetoothSimulation implements Bluetooth {
 		int sendPort;
 		int y = (port-basePort)/limitX;
 		int x = (port-basePort)%limitX;
-			for(int j=y==0?y:y-1; j<=y+1 && j<limitY ; j++){
-				for(int i=x==0?x:x-1; i<=x+1 && i<limitX; i++) {
+			for(int j=y==0?y:y-range; j<=y+range && j<limitY ; j++){
+				for(int i=x==0?x:x-range; i<=x+range && i<limitX; i++) {
 					sendPort=basePort+j*limitX+i;
 					if (sendPort != port) {
 						DatagramPacket clientPacket = new DatagramPacket(clientBuffer, clientBuffer.length, localHost, sendPort);
