@@ -2,6 +2,7 @@ package pt.ist.stdf.ServerProgram.HandleClient;
 
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -14,13 +15,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
+import pt.ist.stdf.CryptoUtils.CryptoUtils;
 import pt.ist.stdf.ServerProgram.Position;
 import pt.ist.stdf.ServerProgram.Server;
 import pt.ist.stdf.Simulation.Client;
 import pt.ist.stdf.Simulation.ClientEpoch;
 import pt.ist.stdf.Simulation.Epoch;
+import pt.ist.stdf.Simulation.SimulatedUserRepository;
 import pt.ist.stdf.UserProgram.Location.GridLocation;
 import pt.ist.stdf.UserProgram.Location.Location;
+import pt.ist.stdf.constants.ClientMessageTypes;
 
 public class ClientMessage {
 
@@ -28,48 +32,6 @@ public class ClientMessage {
 	/**
 	 * Um clientMessageType por tipo de mensagem 
 	 * */
-	public enum ClientMessageTypes{ 
-		REPORT_SUBMISSION(3), obtainLocationReport(1), obtainUserAtLocation(2),obtainLocationReportHA(4),
-		userReport(5),serverResponseObtainLocationReport(6),serverResponseObtainUsersAtLocation(7),serverResponseObtainLocationReportHA(8),submitSharedKey(9);
-
-		private final int value;
-
-		private ClientMessageTypes(int value) {
-			this.value = value;
-		}
-
-		public int getValue() {
-			return value;
-		}
-		/**@param val comes in the messages
-		 * @return the correct ClientMessageType*/
-		public static ClientMessageTypes getMessageTypeByInt(int val) {
-			switch (val) {
-			case 3:
-				return ClientMessageTypes.REPORT_SUBMISSION;
-			case 1:
-				return ClientMessageTypes.obtainLocationReport;
-			case 2:
-				return ClientMessageTypes.obtainUserAtLocation;
-			case 5:
-				return ClientMessageTypes.userReport;
-			case 4:
-				return ClientMessageTypes.obtainLocationReportHA;
-			case 6:
-				return ClientMessageTypes.serverResponseObtainLocationReport;
-			case 7:
-				return ClientMessageTypes.serverResponseObtainUsersAtLocation;
-			case 8:
-				return ClientMessageTypes.serverResponseObtainLocationReportHA;
-			case 9:
-				return ClientMessageTypes.submitSharedKey;
-			
-			default:
-				return null;
-			}
-		}
-
-	}
 
 	
 
@@ -140,7 +102,12 @@ public class ClientMessage {
 			System.out.println("[MSG: OBTAINS USER AT LOCATION "+userId+" epoch asked: "+epoch+" position asked: "+position.x+" ; "+position.y);
 			break;
 		case submitSharedKey:
-			submitSharedKey(msgData);
+			try {
+				submitSharedKey(msgData);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		}
 	}
@@ -155,7 +122,7 @@ public class ClientMessage {
 		
 		JsonObject message = new JsonObject();
 		message.addProperty("userId", userId);
-		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReport.value);
+		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReport.getValue());
 		JsonObject msgDataWithLocation= new JsonObject();
 		msgDataWithLocation.addProperty("epoch", epoch);
 		ClientEpoch result= ce.get();
@@ -180,7 +147,7 @@ public class ClientMessage {
 		System.out.println("Obtained");
 		JsonObject message = new JsonObject();
 		message.addProperty("userId", userId);
-		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReportHA.value);
+		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReportHA.getValue());
 		JsonObject msgDataWithLocation= new JsonObject();
 		msgDataWithLocation.addProperty("epoch", epoch);
 		msgDataWithLocation.addProperty("userId", askedUserId);
@@ -212,7 +179,7 @@ public class ClientMessage {
 
 		JsonObject message = new JsonObject();
 		message.addProperty("userId", userId);
-		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainUsersAtLocation.value);
+		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainUsersAtLocation.getValue());
 		JsonObject msgDataWithUsers= new JsonObject();
 		GridLocation l = new GridLocation(position.x,position.y);
 		msgDataWithUsers.addProperty("position", l.getCurrentLocation());
@@ -239,10 +206,20 @@ public class ClientMessage {
 		checkIfValidSubmitLocationReport();
 	}
 	
-	private void submitSharedKey(JsonObject msgData)
+	private void submitSharedKey(JsonObject msgData) throws Exception
 	{
-		String sharedKey = msgData.get("sharedKey").getAsString();
-		System.out.println("Received Shared key from client "+userId+ " : "+sharedKey);
+		String pubKey = server.findClientById(userId).get().getPublicKey();
+		
+		String pubServer = msgData.get("sharedKey").getAsString();
+		
+		PublicKey pub = CryptoUtils.getPublicKeyFromString(pubKey);
+		String signed = msgData.get("signedData").getAsString();
+		boolean b = CryptoUtils.verify("amigos", signed, pub);
+		if(b)
+			System.out.println("Received Shared key from client "+userId+ " : "+b+ "");
+		else {
+			System.out.println("Naoc orreu bem a translation");
+		}
 		Client c = server.findClientById(userId).get();
 		if(c!=null)
 			System.out.println("Updated/added client");
@@ -251,8 +228,8 @@ public class ClientMessage {
 
 		}
 		System.out.println("Comparing to key: "+c.getSharedKey());
-		c.setSharedKey(sharedKey);
-		server.updateClientSharedKey(c);
+		//c.setSharedKey(sharedKey);
+		//server.updateClientSharedKey(c);
 		System.out.println("DONE /added client");
 
 	}
@@ -300,9 +277,6 @@ public class ClientMessage {
 	
 	
 	public void PrintSubmitLocationReport() {
-		//String s = "[MESSAGE: ] id: "+userId+" msgType: "+msgType.toString() +" epoch: "+
-			//	epoch +" position: " + position.toString() +"/n";
-	//	System.out.println(s);
 		if(reports!=null)
 		for (ClientReport b : reports) {
 			System.out.println(b.toString());

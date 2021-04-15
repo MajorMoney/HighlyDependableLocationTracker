@@ -1,5 +1,7 @@
 package pt.ist.stdf.CryptoUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -130,9 +132,10 @@ public class CryptoUtils {
 		return null;
 	}
 
-	public static PublicKey getPublicKeyFromString(String pub) {
+	public static PublicKey getPublicKeyFromString(String pub) throws UnsupportedEncodingException {
 		try {
 
+			//String pub1= new String(pub.getBytes(),StandardCharsets.UTF_8);
 			X509EncodedKeySpec publicz = new X509EncodedKeySpec(Base64.getDecoder().decode(pub));
 			KeyFactory keyf;
 			keyf = KeyFactory.getInstance("RSA");
@@ -144,6 +147,29 @@ public class CryptoUtils {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	public static String sign(String samlResponseString, PrivateKey pkey)
+            throws NoSuchAlgorithmException,
+            InvalidKeyException, SignatureException, UnsupportedEncodingException {
+        String signedString = null;
+        Signature signature = Signature.getInstance("SHA512withRSA");
+        signature.initSign(pkey);
+        signature.update(samlResponseString.getBytes());
+        byte[] signatureBytes = signature.sign();
+        byte[] encryptedByteValue = Base64.getEncoder().encode(signatureBytes);
+        signedString = new String(encryptedByteValue, "UTF-8");
+        System.out.println(signedString);
+        return signedString;
+    }
+	
+	public static boolean verify(String plainText, String signature, PublicKey publicKey) throws Exception {
+	    Signature publicSignature = Signature.getInstance("SHA512withRSA");
+	    publicSignature.initVerify(publicKey);
+	    publicSignature.update(plainText.getBytes("UTF-8"));
+
+	    byte[] signatureBytes = Base64.getDecoder().decode(signature);
+
+	    return publicSignature.verify(signatureBytes);
 	}
 
 	public static void main(String args[]) {
@@ -169,6 +195,13 @@ public class CryptoUtils {
 			preHash(data);
 			byte[] signature = signMessageRSA(data, privateKey);
 			System.out.println("Signature verifies: " + verifySignedMessagedRSA(data, signature, publicKey));
+			String signed = sign("amigos",privateKey);
+			boolean b = verify("amigos", signed, publicKey);
+			if(b)
+			{
+				System.out.println("Signature verifies after b64:"+b);
+			}
+			
 
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
 			e.printStackTrace();
@@ -182,6 +215,12 @@ public class CryptoUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SignatureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

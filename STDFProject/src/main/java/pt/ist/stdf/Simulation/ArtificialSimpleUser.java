@@ -3,7 +3,7 @@ package pt.ist.stdf.Simulation;
 
 import java.security.KeyPair;
 import java.security.PublicKey;
-
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -28,7 +28,7 @@ import pt.ist.stdf.UserProgram.User.SimpleUser;
 
 public class ArtificialSimpleUser extends SimpleUser {
 
-	private final int numEpochToSimulate;
+	private int numEpochToSimulate;
 
 	
 	public ArtificialSimpleUser(String serverHost, int serverPort, GridLocation loc, Bluetooth bltth,
@@ -36,6 +36,7 @@ public class ArtificialSimpleUser extends SimpleUser {
 		super(serverHost, serverPort, loc, bltth, kp,serverPK,id);
 		System.out.println("Init user");
 		this.numEpochToSimulate = numEpochToSimulate;
+		this.setEpoch(numEpochToSimulate);
 	}
 
 	public static int convertPosToBluetoothPort(int x, int y) {
@@ -78,18 +79,33 @@ public class ArtificialSimpleUser extends SimpleUser {
 			// listenForResponse();
 			break;
 		case 2:
-			JsonObject je = generateObtainLocationReportHA();
-			submitLocationReport(je);
+			//JsonObject je = generateObtainLocationReportHA();
+			//submitLocationReport(je);
 			System.out.println("[HA CLIENT] Obtain location report");
 			break;
 		case 3:
-			JsonObject jo = generateObtainUsersAtLocationHA();
-			submitLocationReport(jo);
+			//JsonObject jo = generateObtainUsersAtLocationHA();
+			//submitLocationReport(jo);
 			System.out.println("[HA CLIENT] Obtain users @ location");
 			break;
 		case 4:
-			JsonObject joo = generateSubmitSharedKey();
-			submitLocationReport(joo);
+			JsonObject joo;
+			try {
+				joo = generateSubmitSharedKey();
+				submitLocationReport(joo);
+			} catch (InvalidKeyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SignatureException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			System.out.println("[CLIENT] Submit shared key");
 			break;
 		case 5:
@@ -102,12 +118,11 @@ public class ArtificialSimpleUser extends SimpleUser {
 		}
 	}
 
-	
-
-	
+		
 
 	public void advanceEpoch() {
 
+		numEpochToSimulate++;
 	}
 
 }

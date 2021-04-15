@@ -1,5 +1,6 @@
 package pt.ist.stdf.Simulation;
 
+import java.io.UnsupportedEncodingException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class DB_Seeder {
 		this.epochRepo = epochRepo;
 	}
 	
-	public void fillFull() throws NoSuchAlgorithmException {
+	public void fillFull() throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		fillSimulatedUsers();
 		fillClientsWithSimulatedUsers();
 		fillEpochs();
@@ -48,12 +49,14 @@ public class DB_Seeder {
 		epochRepo.deleteAll();
 	}
 	
-	private void fillSimulatedUsers() throws NoSuchAlgorithmException {
+	private void fillSimulatedUsers() throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		for(int i=1;i<=NUM_SIMULATED_USERS;i++) {
 			KeyPair kp = CryptoUtils.generateKeyPair();
 			System.out.println("Keypair : "+kp.toString()+" "+kp.getPrivate().getEncoded().toString());
 			String priv = java.util.Base64.getEncoder().encodeToString(kp.getPrivate().getEncoded());
 			String pub =  java.util.Base64.getEncoder().encodeToString(kp.getPublic().getEncoded());
+			//String signedString = new String(pub.getBytes(), "UTF-8");
+
 			System.out.println(priv.length());
 			System.out.println(pub.length());
 			//System.out.println(priv);
