@@ -33,7 +33,7 @@ public class CryptoUtils {
 	public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
 
 		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-		
+
 		kpg.initialize(2048);
 		KeyPair kp = kpg.generateKeyPair();
 		return kp;
@@ -43,7 +43,8 @@ public class CryptoUtils {
 		KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
 		keyGenerator.init(256);
 		SecretKey key = keyGenerator.generateKey();
-		//System.out.println("AES KEY: " + new String(key.getEncoded(), 0, key.getEncoded().length));
+		// System.out.println("AES KEY: " + new String(key.getEncoded(), 0,
+		// key.getEncoded().length));
 		return key;
 	}
 
@@ -55,16 +56,16 @@ public class CryptoUtils {
 	public static IvParameterSpec generateIv() throws NoSuchAlgorithmException {
 		byte[] iv = new byte[16];
 		generateStrongSecureRandom(iv);
-		//System.out.println("IV: " + new String(iv, 0, iv.length));
+		// System.out.println("IV: " + new String(iv, 0, iv.length));
 		return new IvParameterSpec(iv);
 	}
 
 	public static void preHash(byte[] data) throws NoSuchAlgorithmException {
-		MessageDigest md=MessageDigest.getInstance("MD5");
+		MessageDigest md = MessageDigest.getInstance("MD5");
 		md.update(data);
 		md.digest();
 	}
-	
+
 	public static byte[] signMessageRSA(byte[] data, PrivateKey pk)
 			throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
 		// generating a signature
@@ -84,33 +85,65 @@ public class CryptoUtils {
 		return dsaForVerify.verify(signature);
 	}
 
-	public static byte[] cipherKey(byte[] key,PublicKey pk) throws NoSuchAlgorithmException, NoSuchPaddingException,
+	public static byte[] cipherKey(byte[] key, PublicKey pk) throws NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		Cipher c = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 		c.init(Cipher.ENCRYPT_MODE, pk);
 		return c.doFinal(key);
 	}
 
-	public static byte[] decipherKey(byte[] key,PrivateKey pk) throws NoSuchAlgorithmException, NoSuchPaddingException,
+	public static byte[] decipherKey(byte[] key, PrivateKey pk) throws NoSuchAlgorithmException, NoSuchPaddingException,
 			InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 		cipher.init(Cipher.DECRYPT_MODE, pk);
 		return cipher.doFinal(key);
 	}
 
-	public static String cipherMsg(String msg, SecretKey key,IvParameterSpec iv) throws NoSuchAlgorithmException, NoSuchPaddingException,
-			InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+	public static String cipherMsg(String msg, SecretKey key, IvParameterSpec iv)
+			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 		byte[] cipherText = cipher.doFinal(msg.getBytes());
 		return Base64.getEncoder().encodeToString(cipherText);
 	}
 
-	public static String decipherMsg(String cipher, SecretKey key,IvParameterSpec iv) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException {
+	public static String decipherMsg(String cipher, SecretKey key, IvParameterSpec iv)
+			throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException,
+			NoSuchPaddingException, InvalidAlgorithmParameterException {
 		Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
-		c.init(Cipher.DECRYPT_MODE, key,iv);
+		c.init(Cipher.DECRYPT_MODE, key, iv);
 		byte[] plainText = c.doFinal(Base64.getDecoder().decode(cipher));
 		return new String(plainText);
+	}
+
+	public static PrivateKey getPrivateKeyFromString(String privateKey) {
+		try {
+			PKCS8EncodedKeySpec priPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey));
+			KeyFactory keyf = KeyFactory.getInstance("RSA");
+			PrivateKey priKey = keyf.generatePrivate(priPKCS8);
+			return priKey;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static PublicKey getPublicKeyFromString(String pub) {
+		try {
+
+			X509EncodedKeySpec publicz = new X509EncodedKeySpec(Base64.getDecoder().decode(pub));
+			KeyFactory keyf;
+			keyf = KeyFactory.getInstance("RSA");
+
+			PublicKey pubKey = keyf.generatePublic(publicz);
+			return pubKey;
+
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static void main(String args[]) {
@@ -119,20 +152,20 @@ public class CryptoUtils {
 			KeyPair kp = generateKeyPair();
 			System.out.println(kp.getPrivate());
 			System.out.println(kp.getPublic());
-			SecretKey aes=generateKeyAES();
+			SecretKey aes = generateKeyAES();
 			PublicKey publicKey = kp.getPublic();
 			PrivateKey privateKey = kp.getPrivate();
-			IvParameterSpec iv=generateIv();
-			
+			IvParameterSpec iv = generateIv();
+
 			String text = new String(data, 0, data.length);
-			byte[] encAes = cipherKey(aes.getEncoded(), publicKey );
+			byte[] encAes = cipherKey(aes.getEncoded(), publicKey);
 			System.out.println("CIPHER AES : " + new String(encAes, 0, encAes.length) + "\n");
-			byte[] decAes =decipherKey(encAes, privateKey);
+			byte[] decAes = decipherKey(encAes, privateKey);
 			SecretKey originalKey = new SecretKeySpec(decAes, 0, decAes.length, "AES");
 			System.out.println("PLAITEXT AES : " + new String(decAes, 0, decAes.length));
-			String cipheredText =cipherMsg(text, originalKey,iv);
-			System.out.println("CIPHER MSG : " + cipheredText );
-			System.out.println("PLAITEXT MSG: " + decipherMsg(cipheredText, originalKey,iv));
+			String cipheredText = cipherMsg(text, originalKey, iv);
+			System.out.println("CIPHER MSG : " + cipheredText);
+			System.out.println("PLAITEXT MSG: " + decipherMsg(cipheredText, originalKey, iv));
 			preHash(data);
 			byte[] signature = signMessageRSA(data, privateKey);
 			System.out.println("Signature verifies: " + verifySignedMessagedRSA(data, signature, publicKey));
@@ -154,33 +187,5 @@ public class CryptoUtils {
 		}
 
 	}
-	public static PrivateKey getPrivateKeyFromString(String privateKey) {
-	    try {
-	        PKCS8EncodedKeySpec priPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey));
-	        KeyFactory keyf = KeyFactory.getInstance("RSA");
-	        PrivateKey priKey = keyf.generatePrivate(priPKCS8);
-	        return priKey;
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return null;
-	}
-	public static PublicKey getPublicKeyFromString(String pub) {
-			try {
-
-				X509EncodedKeySpec publicz = new X509EncodedKeySpec(Base64.getDecoder().decode(pub));
-			    KeyFactory keyf;
-				keyf = KeyFactory.getInstance("RSA");
-				
-		        PublicKey pubKey = keyf.generatePublic(publicz);
-		        return pubKey;
-		        
-
-			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		return null;
-	}
 }

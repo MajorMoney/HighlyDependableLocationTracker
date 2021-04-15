@@ -9,9 +9,11 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -190,7 +192,7 @@ public class SimpleUser extends User {
 
 		JsonObject msgData = new JsonObject();
 		msgData.addProperty("epoch", "1");
-		msgData.add("position", loc.getCurrentLocationAsJsonArray());
+		msgData.addProperty("position", loc.getCurrentLocation());
 
 		JsonObject obj = new JsonObject();
 
@@ -209,22 +211,21 @@ public class SimpleUser extends User {
 
 		System.out.println("User ID:" + this.getId() + " received proof request from user ID:" + msg.get("userId")
 				+ "\nMSG: " + msg.toString() + "\n");
-
-		// if position valid
-		// respond:
-
-		// Change message body and send response
+		// Check position();
 		msg.addProperty("msgType", RESPONSE_TO_VALIDATION);
 		msg.addProperty("userId", Integer.toString(this.getId()));
 
-		JsonObject msgData = new JsonObject();
-
-		StringBuilder singature = new StringBuilder();
-		singature.append("Assinado por: ");
-		singature.append(this.getId());
-		msgData.addProperty("singature,", singature.toString());
-
-		msg.add("msgData", msgData);
+		JsonObject msgData = (JsonObject) msg.get("msgData");
+		//addPropertyepech
+		msgData.addProperty("position", loc.getCurrentLocation());
+		msgData.addProperty("signer",getId());
+		try {
+			byte[] signature=CryptoUtils.signMessageRSA(msgData.toString().getBytes(), getKp().getPrivate());
+			CryptoUtils.preHash(signature);
+			msg.addProperty("signature",new String( Base64.getEncoder().encode(signature)));
+		} catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 		bltth.respondRequest(msg);
 
 		// else
@@ -426,7 +427,7 @@ public class SimpleUser extends User {
 					e.printStackTrace();
 				}
 			}
-		}, 5000, TimeUnit.MILLISECONDS);
+		}, 2000, TimeUnit.MILLISECONDS);
 	}
 
 	public void submitLocationReport(JsonObject j) {

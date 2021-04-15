@@ -171,7 +171,7 @@ public class Main {
 
 	public void saveUser() {
 		SimulatedUser a = new SimulatedUser("priv ", "pub ");
-		userRepository.save(a);
+//		userRepository.save(a);
 	}
 
 	@Bean

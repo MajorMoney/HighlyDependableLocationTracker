@@ -29,6 +29,18 @@ public abstract class User {
 		getIdFromServer();
 	}
 	
+	public KeyPair getKp() {
+		return kp;
+	}
+
+	public SecretKey getAes() {
+		return aes;
+	}
+
+	public PublicKey getServerPK() {
+		return serverPK;
+	}
+
 	protected int getId() {
 		return id;
 	}
