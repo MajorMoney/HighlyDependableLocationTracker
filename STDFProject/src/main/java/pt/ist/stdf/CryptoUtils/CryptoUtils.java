@@ -134,7 +134,7 @@ public class CryptoUtils {
 
 	public static PublicKey getPublicKeyFromString(String pub) {
 		try {
-			pub.replace('\n', ' ');
+			//pub.replace('\n', ' ');
 			X509EncodedKeySpec publicz = new X509EncodedKeySpec(Base64.getDecoder().decode(pub));
 			KeyFactory keyf;
 			keyf = KeyFactory.getInstance("RSA");
@@ -148,6 +148,29 @@ public class CryptoUtils {
 		return null;
 	}
 
+	public static String sign(String samlResponseString, PrivateKey pkey)
+            throws NoSuchAlgorithmException,
+            InvalidKeyException, SignatureException, UnsupportedEncodingException {
+        String signedString = null;
+        Signature signature = Signature.getInstance("SHA512withRSA");
+        signature.initSign(pkey);
+        signature.update(samlResponseString.getBytes());
+        byte[] signatureBytes = signature.sign();
+        byte[] encryptedByteValue = Base64.getEncoder().encode(signatureBytes);
+        signedString = new String(encryptedByteValue, "UTF-8");
+        System.out.println(signedString);
+        return signedString;
+    }
+
+	public static boolean verify(String plainText, String signature, PublicKey publicKey) throws Exception {
+	    Signature publicSignature = Signature.getInstance("SHA512withRSA");
+	    publicSignature.initVerify(publicKey);
+	    publicSignature.update(plainText.getBytes("UTF-8"));
+
+	    byte[] signatureBytes = Base64.getDecoder().decode(signature);
+
+	    return publicSignature.verify(signatureBytes);
+	}
 	public static void main(String args[]) {
 		try {
 			byte[] data = "Data to be signed".getBytes();

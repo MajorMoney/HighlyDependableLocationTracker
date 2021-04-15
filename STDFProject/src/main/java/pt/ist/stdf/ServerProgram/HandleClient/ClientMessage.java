@@ -43,7 +43,7 @@ public class ClientMessage {
 	public Server server;
 	public ClientConnection clientConnection;
 
-	public ClientMessage(byte[] buffer, Server server, ClientConnection cc) {
+	public ClientMessage(byte[] buffer, Server server, ClientConnection cc) throws Exception {
 		this.buffer = buffer;
 		this.server = server;
 		this.clientConnection = cc;
@@ -53,8 +53,9 @@ public class ClientMessage {
 	/**
 	 * reads Message reader.setLenient(true) é necessario porque senao ele tenta ler
 	 * espaços vazios
+	 * @throws Exception 
 	 */
-	private void readMessage() {
+	private void readMessage() throws Exception {
 		String s = new String(buffer, StandardCharsets.UTF_8);
 		// System.out.println("Received<<<<<<: "+s);
 		Gson gson = new Gson();
@@ -78,7 +79,7 @@ public class ClientMessage {
 
 	Position position;
 
-	private void handleMessageData(ClientMessageTypes type, JsonObject msgData) {
+	private void handleMessageData(ClientMessageTypes type, JsonObject msgData) throws Exception {
 		switch (type) {
 		case REPORT_SUBMISSION: {
 			submitLocationReport(msgData);
@@ -118,7 +119,7 @@ public class ClientMessage {
 
 		JsonObject message = new JsonObject();
 		message.addProperty("userId", userId);
-		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReport.value);
+		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReport.getValue());
 		JsonObject msgDataWithLocation = new JsonObject();
 		msgDataWithLocation.addProperty("epoch", epoch);
 		ClientEpoch result = ce.get();
@@ -144,7 +145,7 @@ public class ClientMessage {
 		System.out.println("Obtained");
 		JsonObject message = new JsonObject();
 		message.addProperty("userId", userId);
-		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReportHA.value);
+		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainLocationReportHA.getValue());
 		JsonObject msgDataWithLocation = new JsonObject();
 		msgDataWithLocation.addProperty("epoch", epoch);
 		msgDataWithLocation.addProperty("userId", askedUserId);
@@ -179,7 +180,7 @@ public class ClientMessage {
 
 		JsonObject message = new JsonObject();
 		message.addProperty("userId", userId);
-		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainUsersAtLocation.value);
+		message.addProperty("msgType", ClientMessageTypes.serverResponseObtainUsersAtLocation.getValue());
 		JsonObject msgDataWithUsers = new JsonObject();
 		GridLocation l = new GridLocation(position.x, position.y);
 		msgDataWithUsers.addProperty("position", l.getCurrentLocation());
@@ -218,7 +219,7 @@ String pubKey = server.findClientById(userId).get().getPublicKey();
 		String signed = msgData.get("signedData").getAsString();
 		boolean b = CryptoUtils.verify("amigos", signed, pub);
 		if(b)
-			System.out.println("Received Shared key from client "+userId+ " : "+b+ "");
+			System.out.println("Received GOOOD Shared key from client "+userId+ " : "+b+ "");
 		else {
 			System.out.println("Naoc orreu bem a translation");
 		}
@@ -230,8 +231,8 @@ String pubKey = server.findClientById(userId).get().getPublicKey();
 
 		}
 		System.out.println("Comparing to key: " + c.getSharedKey());
-		c.setSharedKey(sharedKey);
-		server.updateClientSharedKey(c);
+	//c.setSharedKey(sharedKey);
+	//	server.updateClientSharedKey(c);
 		System.out.println("DONE /added client");
 
 	}
@@ -335,5 +336,6 @@ String pubKey = server.findClientById(userId).get().getPublicKey();
 	public void setPosition(Position position) {
 		this.position = position;
 	}
+	
 
 }

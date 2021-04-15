@@ -48,7 +48,7 @@ public class ClientConnection extends Thread{
 	
 	
 	
-	public void Connect() {
+	public void Connect() throws Exception {
 		try {
 			input=new DataInputStream(socket.getInputStream());
 			output =new DataOutputStream(socket.getOutputStream());
@@ -60,12 +60,17 @@ public class ClientConnection extends Thread{
 	}
 	@Override
 	public void run() {
-		Connect();		
+		try {
+			Connect();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 
 
 
-	public void listen() {
+	public void listen() throws Exception {
 		try {
 			input.read(buffer,0,buffer.length);
 			String s = new String(buffer,StandardCharsets.UTF_8);
