@@ -213,11 +213,15 @@ public class ClientMessage {
 	{
 String pubKey = server.findClientById(userId).get().getPublicKey();
 		
-		String pubServer = msgData.get("sharedKey").getAsString();
 		
 		PublicKey pub = CryptoUtils.getPublicKeyFromString(pubKey);
+		
 		String signed = msgData.get("signedData").getAsString();
-		boolean b = CryptoUtils.verify("amigos", signed, pub);
+		JsonObject tobeSigned =msgData.get("toBeSigned").getAsJsonObject();
+		String jsonObjStr = tobeSigned.toString();
+		
+		boolean b = CryptoUtils.verify(jsonObjStr, signed, pub);
+		
 		if(b)
 			System.out.println("Received GOOOD Shared key from client "+userId+ " : "+b+ "");
 		else {

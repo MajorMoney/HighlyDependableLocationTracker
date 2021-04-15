@@ -298,11 +298,17 @@ public class SimpleUser extends User {
 
 	public JsonObject generateSubmitSharedKey() throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, UnsupportedEncodingException {
 		JsonObject msgData = new JsonObject();
-		String signedData = CryptoUtils.sign("amigos",getKp().getPrivate());
-		msgData.addProperty("signedData", signedData);
+		//String signedData = CryptoUtils.sign("amigos",getKp().getPrivate());
 		msgData.addProperty("sharedKey",   java.util.Base64.getEncoder().encodeToString(getKp().getPublic().getEncoded()));
+		JsonObject toBesigned = new JsonObject();
+		toBesigned.addProperty("aa", "bb");
+		toBesigned.addProperty("cc", "bb");
+		msgData.add("toBeSigned", toBesigned);
+		String s = toBesigned.toString();
+		String signedData = CryptoUtils.sign(s,getKp().getPrivate());
+		msgData.addProperty("signedData", signedData);
+		msgData.addProperty("plaintext", s);
 		
-
 		
 		JsonObject obj = new JsonObject();
 
