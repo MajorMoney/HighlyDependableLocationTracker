@@ -179,11 +179,30 @@ public class Main {
 //		userRepository.save(a);
 	}
 
+	private Server createServer() {
+		SimulatedServer srver = serverRepository.findById(1).get();
+		String priv = srver.getPrivateKey();
+		String pub = srver.getPublicKey();
+		PrivateKey privK = CryptoUtils.getPrivateKeyFromString(priv);
+		PublicKey pubK = CryptoUtils.getPublicKeyFromString(pub);
+		KeyPair kp = new KeyPair(pubK,privK);
+		
+		Server s;
+		try {
+			s = new Server(clientRepository, epochRepository, clientEpochRepository,kp);
+			return s;
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 	@Bean
 	CommandLineRunner runner() {
 		return args -> {
+			Server s = createServer();
 			setEpochTimer();
-			Server s = new Server(clientRepository, epochRepository, clientEpochRepository);
 			DB_Seeder dbs = new DB_Seeder(userRepository, serverRepository, clientRepository, clientEpochRepository, epochRepository);
 			dbs.eraseRepos();
 			dbs.fillFull();

@@ -1,6 +1,7 @@
 package pt.ist.stdf.ServerProgram;
 
 import java.net.*;
+import java.security.KeyPair;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -37,17 +38,19 @@ public class Server {
 	@Autowired
 	ClientEpochRepository clientEpochRepository;
 	int epoch;
+	private KeyPair keypair;
 	public Server() throws IOException {
 		serverSocket = new ServerSocket(PORT);
 		messages= new LinkedBlockingQueue<JsonObject>() ;
 	}
 
-	public Server(ClientRepository clientRepo, EpochRepository epochRepo,ClientEpochRepository clientEpochRepo) throws IOException {
+	public Server(ClientRepository clientRepo, EpochRepository epochRepo,ClientEpochRepository clientEpochRepo,KeyPair kp) throws IOException {
 		this.epochRepository=epochRepo;
 		this.clientEpochRepository = clientEpochRepo;
 		this.clientRepository=clientRepo;
 		serverSocket = new ServerSocket(PORT);
 		messages= new LinkedBlockingQueue<JsonObject>() ;
+		this.keypair=kp;
 	}
 	public void Start() {
 		try {
@@ -67,6 +70,14 @@ public class Server {
 	}
 
 	
+	public KeyPair getKeypair() {
+		return keypair;
+	}
+
+	public void setKeypair(KeyPair keypair) {
+		this.keypair = keypair;
+	}
+
 	public int getEpoch() {
 		return epoch;
 	}
