@@ -1,17 +1,15 @@
 package pt.ist.stdf.UserProgram.User;
 
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
-import java.net.InetAddress;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.util.ArrayList;
@@ -24,42 +22,28 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.crypto.SecretKey;
-
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
+
 
 import pt.ist.stdf.CryptoUtils.CryptoUtils;
-import pt.ist.stdf.ServerProgram.Position;
-import pt.ist.stdf.ServerProgram.HandleClient.ClientMessage;
-import pt.ist.stdf.ServerProgram.HandleClient.ClientMessage.ClientMessageTypes;
 import pt.ist.stdf.UserProgram.Bluetooth.Bluetooth;
 import pt.ist.stdf.UserProgram.Location.GridLocation;
 import pt.ist.stdf.UserProgram.Location.Location;
 import pt.ist.stdf.UserProgram.User.ServerResponseListener.ServerResponseListener;
+import pt.ist.stdf.constants.BluetoothMessageTypes;
+import pt.ist.stdf.constants.ClientMessageTypes;
 
 public class SimpleUser extends User {
 
 	private static final int MAX_UDP_DATA_SIZE = (64 * 1024 - 1) - 8 - 20;
 	private static final int BUFFER_SIZE = MAX_UDP_DATA_SIZE;
 
-	private final int REQUEST_VALDATION = 0;
-	private final int RESPONSE_TO_VALIDATION = 1;
-	private final int REPORT_SUBMISSION = 2;
 	// Server messages
-	private final int REPORT_OTHER_USER = 5;
-	private final int OBTAIN_LOCATION_REPORT = 1;
-	private final int SUBMIT_LOCATION_REPORT = 3;
-	private final int OBTAIN_LOCATION_REPORT_HA = 4;
-	private final int OBTAIN_USERS_AT_LOCATION_HA = 2;
-	private final int SUBMIT_SHARED_KEY = 9;
+
+
 
 //Test	
 	private final int MAX_NUM_REPORTS = 3;
@@ -76,6 +60,7 @@ public class SimpleUser extends User {
 	private HashMap<Integer, ReportList> openReportMakers;
 	private List<Integer> sentReports;
 
+	private int epoch;
 	private byte[] buffer = new byte[BUFFER_SIZE];
 	private Socket serverSocket;
 	private DataInputStream in;
@@ -83,6 +68,7 @@ public class SimpleUser extends User {
 
 	
 
+	
 	public SimpleUser(String serverHost, int serverPort, Location loc, Bluetooth bltth, KeyPair kp,PublicKey serverPK,int id) {
 		super(serverHost, serverPort,kp,serverPK, id);
 		this.loc = loc;
@@ -101,6 +87,12 @@ public class SimpleUser extends User {
 
 	// ##Starter methods##//
 
+	public void setEpoch(int ep) {
+		this.epoch=ep;
+	}
+	public int getEpoch() {
+		return epoch;
+	}
 	private void setUpTimer() {
 		timer = Executors.newSingleThreadScheduledExecutor();
 	}
@@ -192,12 +184,12 @@ public class SimpleUser extends User {
 	private String generateLocationRequest() {
 
 		JsonObject msgData = new JsonObject();
-		msgData.addProperty("epoch", "1");
+		msgData.addProperty("epoch", epoch);
 		msgData.addProperty("position", loc.getCurrentLocation());
 
 		JsonObject obj = new JsonObject();
 
-		obj.addProperty("msgType", REQUEST_VALDATION);
+		obj.addProperty("msgType", BluetoothMessageTypes.REQUEST_VALIDATION.getValue());
 		obj.addProperty("userId", this.getId());
 		obj.addProperty("msgId", (int) (Math.random() * 8945589));// pode se mudar a seed
 		obj.add("msgData", msgData);
@@ -220,7 +212,7 @@ public class SimpleUser extends User {
 		System.out.println("User ID:" + this.getId() + " received proof request from user ID:" + msg.get("userId")
 				+ "\nMSG: " + msg.toString() + "\n");
 		// Check position();
-		msg.addProperty("msgType", RESPONSE_TO_VALIDATION);
+		msg.addProperty("msgType", BluetoothMessageTypes.RESPONSE_TO_VALIDATION.getValue());
 		msg.addProperty("userId", Integer.toString(this.getId()));
 
 		JsonObject msgData = (JsonObject) msg.get("msgData");
@@ -254,9 +246,9 @@ public class SimpleUser extends User {
 
 			JsonObject msgData = new JsonObject();
 			Random r = new Random();
-			msgData.addProperty("epoch", 1 + r.nextInt(5));
+			msgData.addProperty("epoch", epoch + r.nextInt(5));
 			JsonObject obj = new JsonObject();
-			obj.addProperty("msgType", REPORT_OTHER_USER);
+			obj.addProperty("msgType", ClientMessageTypes.userReport.getValue());
 			int low = 90;
 			int high = 101;
 			int result = r.nextInt(high - low) + low;
@@ -270,14 +262,14 @@ public class SimpleUser extends User {
 	// Generate report message for server
 	public JsonObject generateSubmitLocationReport(JsonArray reports, int msgId) {
 		JsonObject msgData = new JsonObject();
-		msgData.addProperty("epoch", "1");
+		msgData.addProperty("epoch", epoch);
 		msgData.addProperty("position", loc.getCurrentLocation());
 		msgData.addProperty("num_reports", reports.size());
 		msgData.add("reports", reports);
 
 		JsonObject obj = new JsonObject();
 
-		obj.addProperty("msgType", SUBMIT_LOCATION_REPORT);
+		obj.addProperty("msgType", ClientMessageTypes.REPORT_SUBMISSION.getValue());
 		obj.addProperty("userId", getId());
 		obj.addProperty("msgId", msgId);
 		obj.add("msgData", msgData);
@@ -288,11 +280,11 @@ public class SimpleUser extends User {
 	// Generate report message for server
 	public JsonObject generateObtainLocationReport() {
 		JsonObject msgData = new JsonObject();
-		msgData.addProperty("epoch", "1");
+		msgData.addProperty("epoch", epoch);
 
 		JsonObject obj = new JsonObject();
 
-		obj.addProperty("msgType", OBTAIN_LOCATION_REPORT);
+		obj.addProperty("msgType", ClientMessageTypes.obtainLocationReport.getValue());
 		Random r = new Random();
 		int low = 1;
 		int high = 5;
@@ -303,56 +295,20 @@ public class SimpleUser extends User {
 		return obj;
 	}
 
-	// Generate report message for server
-	public JsonObject generateObtainLocationReportHA() {
+
+	public JsonObject generateSubmitSharedKey() throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, UnsupportedEncodingException {
 		JsonObject msgData = new JsonObject();
-		msgData.addProperty("epoch", "1");
-		msgData.addProperty("userId", 4);
+		String signedData = CryptoUtils.sign("amigos",getKp().getPrivate());
+		msgData.addProperty("signedData", signedData);
+		msgData.addProperty("sharedKey",   java.util.Base64.getEncoder().encodeToString(getKp().getPublic().getEncoded()));
+		
+
+		
 		JsonObject obj = new JsonObject();
 
-		obj.addProperty("msgType", OBTAIN_LOCATION_REPORT_HA);
-		Random r = new Random();
-		int low = 90;
-		int high = 101;
-		int result = r.nextInt(high - low) + low;
-		obj.addProperty("userId", result);
-		obj.add("msgData", msgData);
+		obj.addProperty("msgType", ClientMessageTypes.submitSharedKey.getValue());
 
-		return obj;
-	}
-
-	public JsonObject generateSubmitSharedKey() {
-		JsonObject msgData = new JsonObject();
-		msgData.addProperty("sharedKey", "thisisasharedkey");
-
-		JsonObject obj = new JsonObject();
-
-		obj.addProperty("msgType", SUBMIT_SHARED_KEY);
-		Random r = new Random();
-		int low = 1;
-		int high = 5;
-		int result = r.nextInt(high - low) + low;
-		obj.addProperty("userId", result);
-		obj.add("msgData", msgData);
-
-		return obj;
-	}
-
-	public JsonObject generateObtainUsersAtLocationHA() {
-		JsonObject msgData = new JsonObject();
-		Random rand = new Random();
-		GridLocation g = new GridLocation(4, 4);
-		msgData.addProperty("position", g.getCurrentLocation());
-		System.out.println("GRID LOCATION: " + g.getCurrentLocation());
-		msgData.addProperty("epoch", 1);
-		JsonObject obj = new JsonObject();
-
-		obj.addProperty("msgType", OBTAIN_USERS_AT_LOCATION_HA);
-		Random r = new Random();
-		int low = 90;
-		int high = 101;
-		int result = r.nextInt(high - low) + low;
-		obj.addProperty("userId", result);
+		obj.addProperty("userId", getId());
 		obj.add("msgData", msgData);
 
 		return obj;
@@ -463,24 +419,5 @@ public class SimpleUser extends User {
 		}
 	}
 
-//	// Classe a chamar no main para simular o user
-//	public void testSomethingWithServer() {
-//
-//		try {
-//			Socket s = new Socket("localhost", SERVER_PORT);
-//			DataOutputStream dout = new DataOutputStream(s.getOutputStream());
-//			JsonObject j = submitLocationReport();
-//
-//			System.out.println(j.toString());
-//
-//			dout.write(j.toString().getBytes(StandardCharsets.UTF_8));
-//			dout.flush();
-//			dout.close();
-//			s.close();
-//
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
 
 }

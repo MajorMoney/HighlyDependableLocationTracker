@@ -1,12 +1,15 @@
 package pt.ist.stdf.Simulation;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -48,6 +51,7 @@ public class Main {
 	private static final int NUM_USERS_SIMULATE = 3;
 	private Main instance;
 
+	private int currEpoch=1;
 	@Autowired
 	SimulatedUserRepository userRepository;
 	@Autowired
@@ -60,7 +64,8 @@ public class Main {
 	ClientEpochRepository clientEpochRepository;
 
 	private static ArrayList<ArtificialSimpleUser> users = new ArrayList<ArtificialSimpleUser>();
-
+	private static ArrayList<Server> servers = new ArrayList<Server>();
+	
 	private ThreadPoolExecutor workers;
 
 	private static boolean map[][];
@@ -101,7 +106,7 @@ public class Main {
 		return xy;
 	}
 
-	private void initRandomUser(int id) throws NoSuchAlgorithmException {
+	private void initRandomUser(int id) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
 		int xy[] = getNewRadomPosition();
 
@@ -125,7 +130,7 @@ public class Main {
 		System.out.println("Innited rand user");
 	}
 
-	private void intiUsers() throws NoSuchAlgorithmException {
+	private void intiUsers() throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
 		for (int i = 1; i <= NUM_USERS_SIMULATE; i++) {
 			initRandomUser(i);
@@ -138,7 +143,7 @@ public class Main {
 		for (ArtificialSimpleUser user : users) {
 			Runnable task = () -> {
 				try {
-					user.startSimulation(5);
+					user.startSimulation(4);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -177,6 +182,7 @@ public class Main {
 	@Bean
 	CommandLineRunner runner() {
 		return args -> {
+			setEpochTimer();
 			Server s = new Server(clientRepository, epochRepository, clientEpochRepository);
 			DB_Seeder dbs = new DB_Seeder(userRepository, serverRepository, clientRepository, clientEpochRepository, epochRepository);
 			dbs.eraseRepos();
@@ -186,9 +192,36 @@ public class Main {
 			intiUsers();
 			computeSimulation();
 			System.out.println("B4 START -------------------------------------------------");
-
+			servers.add(s);
 			s.Start();
 
 		};
 	}
+
+public void setEpochTimer()
+{
+	Timer myTimer = new Timer ();
+	TimerTask myTask = new TimerTask () {
+	    @Override
+	    public void run () {
+	        // your code 
+	        advanceEpoch(); // Your method
+	    System.out.println("ADVANCE A NEW EPOCH TO "+currEpoch);
+	    }
+	    
+	};
+
+	myTimer.scheduleAtFixedRate(myTask , 0l,  (20*1000));
 }
+
+public void advanceEpoch() {
+	currEpoch++;
+	for(ArtificialSimpleUser u: users) {
+		u.setEpoch(currEpoch);
+	}
+	for(Server s:servers) {
+		s.setEpoch(currEpoch);
+	}
+}
+}
+	

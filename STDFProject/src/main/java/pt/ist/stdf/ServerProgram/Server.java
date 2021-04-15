@@ -36,6 +36,7 @@ public class Server {
 	ClientRepository clientRepository;
 	@Autowired
 	ClientEpochRepository clientEpochRepository;
+	int epoch;
 	public Server() throws IOException {
 		serverSocket = new ServerSocket(PORT);
 		messages= new LinkedBlockingQueue<JsonObject>() ;
@@ -64,6 +65,16 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
+
+	
+	public int getEpoch() {
+		return epoch;
+	}
+
+	public void setEpoch(int epoch) {
+		this.epoch = epoch;
+	}
+	
 
 	public List<ClientEpoch> getAllClientEpochs(){
 		return clientEpochRepository.findAll();
