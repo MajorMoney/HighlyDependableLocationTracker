@@ -5,6 +5,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 
 @Entity
@@ -12,7 +13,9 @@ import javax.persistence.Table;
 public class SimulatedServer {
 @Id
 private Integer id;
+@Size(min=3,max=8000)
 private String privateKey;
+@Size(min=3,max=8000)
 private String publicKey;
 
 public SimulatedServer() {

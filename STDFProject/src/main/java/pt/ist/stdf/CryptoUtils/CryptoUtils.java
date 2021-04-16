@@ -30,6 +30,11 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+
 public class CryptoUtils {
 
 	public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
@@ -43,7 +48,7 @@ public class CryptoUtils {
 
 	public static SecretKey generateKeyAES() throws NoSuchAlgorithmException {
 		KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-		keyGenerator.init(256);
+		keyGenerator.init(128);
 		SecretKey key = keyGenerator.generateKey();
 		// System.out.println("AES KEY: " + new String(key.getEncoded(), 0,
 		// key.getEncoded().length));
@@ -100,7 +105,32 @@ public class CryptoUtils {
 		cipher.init(Cipher.DECRYPT_MODE, pk);
 		return cipher.doFinal(key);
 	}
+	
 
+	public static String getIvForMessage(IvParameterSpec iv) throws NoSuchAlgorithmException {
+		String ivs = Base64.getEncoder().encodeToString(iv.getIV());
+		return ivs;
+		
+	}
+	
+	public static String encryptJsonObjectToString(JsonObject json,SecretKey key,IvParameterSpec iv) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+		
+		String encryptedString = cipherMsg(json.toString(), key, iv );
+		return encryptedString;
+
+	}
+	public static JsonObject decryptStringToJsonObject(String s,SecretKey key,IvParameterSpec iv) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException {
+		String decrypted = CryptoUtils.decipherMsg(s, key, iv);
+		JsonObject json = new Gson().fromJson(decrypted, JsonObject.class);
+		return json;
+		
+	}
+	public static IvParameterSpec getIvFromMessage(String iv) throws NoSuchAlgorithmException {
+		byte[] ivb = Base64.getDecoder().decode(iv);
+		IvParameterSpec trueIv = new IvParameterSpec(ivb);
+		return trueIv;
+	}
+	
 	public static String cipherMsg(String msg, SecretKey key, IvParameterSpec iv)
 			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
@@ -130,6 +160,9 @@ public class CryptoUtils {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	public static String getKeyToString(byte[] encoded) {
+		return java.util.Base64.getEncoder().encodeToString(encoded);
 	}
 
 	public static PublicKey getPublicKeyFromString(String pub) {

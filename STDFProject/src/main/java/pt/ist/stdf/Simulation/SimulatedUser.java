@@ -11,9 +11,9 @@ import javax.validation.constraints.* ;
 public class SimulatedUser {
 @Id
 private int id;
-@Size(min=3,max=2400)
+@Size(min=3,max=8000)
 private String privateKey;
-@Size(min=3,max=2400)
+@Size(min=3,max=8000)
 private String publicKey;
 
 public SimulatedUser() {

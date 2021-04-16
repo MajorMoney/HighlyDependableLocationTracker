@@ -2,6 +2,7 @@ package pt.ist.stdf.Simulation;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -121,13 +122,12 @@ public class Main {
 		String pubKeyString = sim.getPublicKey() ;
 		String privKeyString = sim.getPrivateKey();
 		PrivateKey priKey = CryptoUtils.getPrivateKeyFromString(privKeyString);
-		System.out.println("Prepare emulation: "+priKey.toString());
+		System.out.println("Created user for simulation");
 		PublicKey pubKey = CryptoUtils.getPublicKeyFromString(pubKeyString);
 		KeyPair kp = new KeyPair(pubKey,priKey);
 		SimulatedServer ss = serverRepository.findById(1).get();
 		PublicKey pubServer = CryptoUtils.getPublicKeyFromString(ss.getPublicKey());
 		users.add(new ArtificialSimpleUser(serverHost, serverPort, loc, bltth, NUM_EPOCHS, kp,pubServer,id));
-		System.out.println("Innited rand user");
 	}
 
 	private void intiUsers() throws NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -144,7 +144,10 @@ public class Main {
 			Runnable task = () -> {
 				try {
 					user.startSimulation(4);
-				} catch (InterruptedException e) {
+				} catch (InterruptedException | UnsupportedEncodingException e) {
+					e.printStackTrace();
+				} catch (InvalidAlgorithmParameterException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			};
@@ -183,10 +186,15 @@ public class Main {
 		SimulatedServer srver = serverRepository.findById(1).get();
 		String priv = srver.getPrivateKey();
 		String pub = srver.getPublicKey();
+
 		PrivateKey privK = CryptoUtils.getPrivateKeyFromString(priv);
 		PublicKey pubK = CryptoUtils.getPublicKeyFromString(pub);
+		PublicKey pubK2 = CryptoUtils.getPublicKeyFromString(pub);
+		System.out.println("Inserting into server"+pubK);
+		System.out.println(pubK2);
+
 		KeyPair kp = new KeyPair(pubK,privK);
-		
+		System.out.println(pubK.equals(kp.getPublic()));
 		Server s;
 		try {
 			s = new Server(clientRepository, epochRepository, clientEpochRepository,kp);
@@ -200,16 +208,17 @@ public class Main {
 	@Bean
 	CommandLineRunner runner() {
 		return args -> {
-			Server s = createServer();
-			setEpochTimer();
+			
 			DB_Seeder dbs = new DB_Seeder(userRepository, serverRepository, clientRepository, clientEpochRepository, epochRepository);
 			dbs.eraseRepos();
 			dbs.fillFull();
 			startMap();
+			Server s = createServer();
+			setEpochTimer();
+			
 			setUpWorkers();
 			intiUsers();
 			computeSimulation();
-			System.out.println("B4 START -------------------------------------------------");
 			servers.add(s);
 			s.Start();
 

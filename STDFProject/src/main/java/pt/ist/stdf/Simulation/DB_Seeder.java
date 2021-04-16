@@ -53,7 +53,7 @@ public class DB_Seeder {
 		for(int i=1;i<=NUM_SIMULATED_USERS;i++) {
 			KeyPair kp = CryptoUtils.generateKeyPair();
 			System.out.println("Keypair : "+kp.toString()+" "+kp.getPrivate().getEncoded().toString());
-			String priv = java.util.Base64.getEncoder().encodeToString(kp.getPrivate().getEncoded());
+			String priv = CryptoUtils.getKeyToString(kp.getPrivate().getEncoded());
 			String pub =  java.util.Base64.getEncoder().encodeToString(kp.getPublic().getEncoded());
 			//String signedString = new String(pub.getBytes(), "UTF-8");
 

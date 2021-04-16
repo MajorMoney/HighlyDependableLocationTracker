@@ -13,6 +13,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import javax.persistence.JoinColumn;
 
 
@@ -24,7 +25,9 @@ public class Client {
 //@GeneratedValue(strategy = GenerationType.AUTO)
 private Integer client_id;
 
+@Size(min=3,max=8000)
 private String publicKey;
+@Size(min=3,max=8000)
 private String sharedKey;
 /**
 @ManyToMany(cascade = CascadeType.ALL)

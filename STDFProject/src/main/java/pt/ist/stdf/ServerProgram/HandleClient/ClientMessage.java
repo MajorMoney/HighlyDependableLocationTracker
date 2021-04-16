@@ -1,12 +1,23 @@
 package pt.ist.stdf.ServerProgram.HandleClient;
 
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -104,10 +115,13 @@ public class ClientMessage {
 					+ " position asked: " + position.x + " ; " + position.y);
 			break;
 		case submitSharedKey:
-			submitSharedKey(msgData);
+			submitSharedKeyTest(msgData);
+			//generateSubmitSharedKeyTest();
 			break;
 		}
 	}
+	
+
 
 	private JsonObject obtainLocationReport(JsonObject msgData) {
 
@@ -246,7 +260,38 @@ public class ClientMessage {
 //		System.out.println("DONE /added client");
 
 	}
+	private void submitSharedKeyTest(JsonObject msgData) throws Exception
+	{
+		
+		String ciphered = msgData.get("sharedKeyNotSigned").getAsString();
+		byte[] ciphered_bytes= ciphered.getBytes("UTF-8");
+		byte[] cipheredKey1 =Base64.getDecoder().decode(ciphered);
 
+		Cipher cipher1 = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+		cipher1.init(Cipher.DECRYPT_MODE, server.getKeypair().getPrivate());
+
+
+		byte[] aa = cipher1.doFinal(cipheredKey1);
+		SecretKey key = new SecretKeySpec (aa , "AES" );
+
+		System.out.println("server"+key.getEncoded());
+		
+		String s = msgData.get("encryptedString").getAsString();
+		String iv = msgData.get("iv").getAsString();
+		
+		IvParameterSpec trueIv = CryptoUtils.getIvFromMessage(iv);
+		System.out.println("SERVER IV: "+trueIv);
+		String decrypted = CryptoUtils.decipherMsg(s, key, trueIv);
+		System.out.println("decrypted:" + decrypted);
+		JsonObject decJson = CryptoUtils.decryptStringToJsonObject(s, key, trueIv);
+		Client c  = server.findClientById(userId).get();
+		c.setSharedKey(CryptoUtils.getKeyToString(key.getEncoded()));
+		server.updateClientSharedKey(c);
+			System.out.println("Updated client shared key");
+		
+		
+	}
+	
 	/**
 	 * Turns the jsonArrayList of reports on the submitLocationRequest into a list
 	 * of ClientReports

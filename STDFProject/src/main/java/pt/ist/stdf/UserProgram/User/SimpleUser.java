@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -25,9 +26,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -329,6 +333,45 @@ public class SimpleUser extends User {
 	}
 
 
+	public JsonObject generateSubmitSharedKeyTest() throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
+		JsonObject msg = new JsonObject();
+		msg.addProperty("userId", getId());
+		msg.addProperty("msgType",  ClientMessageTypes.submitSharedKey.getValue());
+		JsonObject cipheredMsgData = new JsonObject();
+		
+
+		SecretKey key = CryptoUtils.generateKeyAES();
+		byte[] encoded =key.getEncoded();
+		
+		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, getServerPK() );
+
+        encoded = cipher.doFinal(encoded);
+        String encodedKey = encoded.toString();
+        String bb = Base64.getEncoder().encodeToString(encoded);
+        String s = new String(encoded, "UTF-8");
+
+        
+        System.out.println(s.length());
+		cipheredMsgData.addProperty("sharedKeyNotSigned", bb);
+		
+		
+		
+		JsonObject encryptedData = new JsonObject();
+		encryptedData.addProperty("isTrue", true);
+		IvParameterSpec iv= CryptoUtils.generateIv();
+
+		String ivs = CryptoUtils.getIvForMessage(iv);
+		cipheredMsgData.addProperty("iv", ivs);
+		
+		String encryptedString = CryptoUtils.cipherMsg(encryptedData.toString(), key, iv );
+		
+		cipheredMsgData.addProperty("encryptedString", encryptedString);
+		msg.add("msgData", cipheredMsgData);
+		System.out.println("[client sending AES key]:"+key.toString());
+		return msg;
+		
+	}
 	// ##General Procedure Methods##//
 
 	// Broadcast Request to other users

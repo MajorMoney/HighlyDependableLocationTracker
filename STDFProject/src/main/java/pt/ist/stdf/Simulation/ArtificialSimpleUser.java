@@ -4,6 +4,7 @@ package pt.ist.stdf.Simulation;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -67,7 +68,7 @@ public class ArtificialSimpleUser extends SimpleUser {
 
 	}
 
-	public void startSimulation(int type) throws InterruptedException {
+	public void startSimulation(int type) throws InterruptedException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
 		switch (type) {
 		case 0:
 			JsonArray rep0 = generateTestReports();
@@ -95,18 +96,12 @@ public class ArtificialSimpleUser extends SimpleUser {
 		case 4:
 			JsonObject joo;
 			try {
-				joo = generateSubmitSharedKey();
+				joo = generateSubmitSharedKeyTest();
 				submitLocationReport(joo);
 			} catch (InvalidKeyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SignatureException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (NoSuchPaddingException e) {
