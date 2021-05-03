@@ -37,9 +37,8 @@ import pt.ist.stdf.UserProgram.Location.GridLocation;
 @SpringBootApplication(scanBasePackages = { "pt.ist.stdf.ServerProgram.database", "pt.ist.stdf.Simulation" })
 @ComponentScan(basePackages = { "pt.ist.stdf.ServerProgram.database" })
 @EnableAutoConfiguration
-public class Main {
+public class Simulation {
 
-	// Mudar alguns argumentos para serem recebidos no command line
 	private static final int NUM_EPOCHS = 40;
 
 	private static final String serverHost = "localhost";
@@ -50,9 +49,10 @@ public class Main {
 	private static final int BLUETOOTH_RANGE = 1;
 	public static final int BLUETOOTH_PORT = 8080;
 	private static final int NUM_USERS_SIMULATE = 3;
-	private Main instance;
+	private static final int CLUSTER_SIZE = 1;
+	private Simulation instance;
 
-	private int currEpoch=1;
+	private int currEpoch = 1;
 	@Autowired
 	SimulatedUserRepository userRepository;
 	@Autowired
@@ -66,17 +66,17 @@ public class Main {
 
 	private static ArrayList<ArtificialSimpleUser> users = new ArrayList<ArtificialSimpleUser>();
 	private static ArrayList<Server> servers = new ArrayList<Server>();
-	
+
 	private ThreadPoolExecutor workers;
 
 	private static boolean map[][];
 
-	public Main getInstance() {
+	public Simulation getInstance() {
 		if (instance != null)
 			return instance;
 		else {
 			System.out.println("is null");
-			instance = new Main();
+			instance = new Simulation();
 			return instance;
 		}
 	}
@@ -96,7 +96,6 @@ public class Main {
 		int xy[] = new int[2];
 		int x = (int) (Math.random() * GRID_X);
 		int y = (int) (Math.random() * GRID_Y);
-		// usar Set para obter nova posição
 		while (map[x][y]) {
 			x = (int) (Math.random() * GRID_X);
 			y = (int) (Math.random() * GRID_Y);
@@ -118,16 +117,10 @@ public class Main {
 		BluetoothSimulation bltth = new BluetoothSimulation(BLUETOOTH_RANGE,
 				ArtificialSimpleUser.convertPosToBluetoothPort(x, y), BLUETOOTH_PORT, GRID_X, GRID_Y);
 
-		SimulatedUser sim = userRepository.findById(id);
-		String pubKeyString = sim.getPublicKey() ;
-		String privKeyString = sim.getPrivateKey();
-		PrivateKey priKey = CryptoUtils.getPrivateKeyFromString(privKeyString);
-		System.out.println("Created user for simulation");
-		PublicKey pubKey = CryptoUtils.getPublicKeyFromString(pubKeyString);
-		KeyPair kp = new KeyPair(pubKey,priKey);
 		SimulatedServer ss = serverRepository.findById(1).get();
 		PublicKey pubServer = CryptoUtils.getPublicKeyFromString(ss.getPublicKey());
-		users.add(new ArtificialSimpleUser(serverHost, serverPort, loc, bltth, NUM_EPOCHS, kp,pubServer,id));
+		users.add(new ArtificialSimpleUser(serverHost, serverPort, loc, bltth, NUM_EPOCHS, getUserKeys(id), pubServer,
+				id));
 	}
 
 	private void intiUsers() throws NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -139,6 +132,12 @@ public class Main {
 		System.out.println("Exit");
 	}
 
+	private void setUpWorkers() {
+		workers = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+		workers.setCorePoolSize(1);
+		workers.setMaximumPoolSize(NUM_USERS_SIMULATE);
+	}
+
 	private void computeSimulation() {
 		for (ArtificialSimpleUser user : users) {
 			Runnable task = () -> {
@@ -147,7 +146,6 @@ public class Main {
 				} catch (InterruptedException | UnsupportedEncodingException e) {
 					e.printStackTrace();
 				} catch (InvalidAlgorithmParameterException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			};
@@ -155,26 +153,105 @@ public class Main {
 		}
 	}
 
-	public static void main(String args[]) {
-		Main m = new Main();
-		m.test(args);
-
-	}
-
-	private void setUpWorkers() {
-		workers = (ThreadPoolExecutor) Executors.newCachedThreadPool();
-		workers.setCorePoolSize(1);
-		workers.setMaximumPoolSize(NUM_USERS_SIMULATE);
-	}
-
-	public void test(String[] args1) {
-		try {
-
-			SpringApplication.run(Main.class, args1);
-		} catch (Exception e) {
-			e.printStackTrace();
-
+	private void createServers() {
+		for (int j = 1; j <= CLUSTER_SIZE; j++) {
+			try {
+				Server s = new Server(clientRepository, epochRepository, clientEpochRepository, getServerKeys(j));
+				servers.add(s);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+	}
+
+	private KeyPair getServerKeys(int i) {
+		System.out.println("id= " + i);
+		SimulatedServer srver = serverRepository.findById(i).get();
+
+		String priv = srver.getPrivateKey();
+		String pub = srver.getPublicKey();
+
+		PrivateKey privK = CryptoUtils.getPrivateKeyFromString(priv);
+		PublicKey pubK = CryptoUtils.getPublicKeyFromString(pub);
+
+		return new KeyPair(pubK, privK);
+	}
+
+	private KeyPair getUserKeys(int i) {
+		SimulatedUser sim = userRepository.findById(i);
+
+		String pubKeyString = sim.getPublicKey();
+		String privKeyString = sim.getPrivateKey();
+
+		PrivateKey priKey = CryptoUtils.getPrivateKeyFromString(privKeyString);
+		PublicKey pubKey = CryptoUtils.getPublicKeyFromString(pubKeyString);
+		return new KeyPair(pubKey, priKey);
+	}
+
+	private void startServers() {
+		for (Server s : servers) {
+			s.Start();
+		}
+	}
+
+	public void setEpochTimer() {
+		Timer myTimer = new Timer();
+		TimerTask myTask = new TimerTask() {
+			@Override
+			public void run() {
+				advanceEpoch();
+				System.out.println("ADVANCE A NEW EPOCH TO " + currEpoch);
+			}
+		};
+		myTimer.scheduleAtFixedRate(myTask, 0l, (20 * 1000));
+	}
+
+	public void advanceEpoch() {
+		currEpoch++;
+		for (ArtificialSimpleUser u : users) {
+			u.setEpoch(currEpoch);
+		}
+		for (Server s : servers) {
+			s.setEpoch(currEpoch);
+		}
+	}
+
+	public static void main(String args[]) {
+		SpringApplication.run(Simulation.class, args);
+	}
+
+	@Bean
+	CommandLineRunner runner() {
+		return args -> {
+
+			DB_Seeder dbs = new DB_Seeder(userRepository, serverRepository, clientRepository, clientEpochRepository,
+					epochRepository);
+			dbs.eraseRepos();
+			dbs.fillFull();
+			Simulation s = new Simulation();
+			try {
+				s.initRepos(serverRepository, userRepository, clientRepository, clientEpochRepository, epochRepository);
+				startMap();
+				s.createServers();
+				s.setEpochTimer();
+				s.setUpWorkers();
+				s.intiUsers();
+				s.computeSimulation();
+				s.startServers();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		};
+	}
+
+	private void initRepos(SimulatedServerRepository serverRepository2, SimulatedUserRepository userRepository2,
+			ClientRepository clientRepository2, ClientEpochRepository clientEpochRepository2,
+			EpochRepository epochRepository2) {
+		this.serverRepository = serverRepository2;
+		this.userRepository = userRepository2;
+		this.clientRepository = clientRepository2;
+		this.clientEpochRepository = clientEpochRepository2;
+		this.serverRepository = serverRepository2;
 	}
 
 	public void saveUser() {
@@ -182,73 +259,4 @@ public class Main {
 //		userRepository.save(a);
 	}
 
-	private Server createServer() {
-		SimulatedServer srver = serverRepository.findById(1).get();
-		String priv = srver.getPrivateKey();
-		String pub = srver.getPublicKey();
-
-		PrivateKey privK = CryptoUtils.getPrivateKeyFromString(priv);
-		PublicKey pubK = CryptoUtils.getPublicKeyFromString(pub);
-		PublicKey pubK2 = CryptoUtils.getPublicKeyFromString(pub);
-		System.out.println("Inserting into server"+pubK);
-		System.out.println(pubK2);
-
-		KeyPair kp = new KeyPair(pubK,privK);
-		System.out.println(pubK.equals(kp.getPublic()));
-		Server s;
-		try {
-			s = new Server(clientRepository, epochRepository, clientEpochRepository,kp);
-			return s;
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	@Bean
-	CommandLineRunner runner() {
-		return args -> {
-			
-			DB_Seeder dbs = new DB_Seeder(userRepository, serverRepository, clientRepository, clientEpochRepository, epochRepository);
-			dbs.eraseRepos();
-			dbs.fillFull();
-			startMap();
-			Server s = createServer();
-			setEpochTimer();
-			
-			setUpWorkers();
-			intiUsers();
-			computeSimulation();
-			servers.add(s);
-			s.Start();
-
-		};
-	}
-
-public void setEpochTimer()
-{
-	Timer myTimer = new Timer ();
-	TimerTask myTask = new TimerTask () {
-	    @Override
-	    public void run () {
-	        // your code 
-	        advanceEpoch(); // Your method
-	    System.out.println("ADVANCE A NEW EPOCH TO "+currEpoch);
-	    }
-	    
-	};
-
-	myTimer.scheduleAtFixedRate(myTask , 0l,  (20*1000));
 }
-
-public void advanceEpoch() {
-	currEpoch++;
-	for(ArtificialSimpleUser u: users) {
-		u.setEpoch(currEpoch);
-	}
-	for(Server s:servers) {
-		s.setEpoch(currEpoch);
-	}
-}
-}
-	

@@ -46,7 +46,7 @@ public class ArtificialSimpleUser extends SimpleUser {
 
 	public static int convertPosToBluetoothPort(int x, int y) {
 
-		return Main.BLUETOOTH_PORT + y * Main.GRID_X + x;
+		return Simulation.BLUETOOTH_PORT + y * Simulation.GRID_X + x;
 	}
 
 	public void _move(int x, int y) {
@@ -54,6 +54,11 @@ public class ArtificialSimpleUser extends SimpleUser {
 		((BluetoothSimulation) this.bltth).changePort(convertPosToBluetoothPort(x, y));
 	}
 
+	public void advanceEpoch() {
+
+		numEpochToSimulate++;
+	}
+	
 	public void _requestProof() {
 		this.requestLocationProof();
 	}
@@ -128,9 +133,6 @@ public class ArtificialSimpleUser extends SimpleUser {
 
 		
 
-	public void advanceEpoch() {
-
-		numEpochToSimulate++;
-	}
+	
 
 }
