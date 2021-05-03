@@ -34,6 +34,11 @@ import pt.ist.stdf.ServerProgram.Server;
 import pt.ist.stdf.UserProgram.Bluetooth.BluetoothSimulation;
 import pt.ist.stdf.UserProgram.Location.GridLocation;
 
+import java.util.logging.Logger;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+
 @SpringBootApplication(scanBasePackages = { "pt.ist.stdf.ServerProgram.database", "pt.ist.stdf.Simulation" })
 @ComponentScan(basePackages = { "pt.ist.stdf.ServerProgram.database" })
 @EnableAutoConfiguration
@@ -64,7 +69,7 @@ public class Simulation {
 	@Autowired
 	ClientEpochRepository clientEpochRepository;
 
-	private static ArrayList<ArtificialSimpleUser> users = new ArrayList<ArtificialSimpleUser>();
+	private static ArrayList<SimpleUserSimulation> users = new ArrayList<SimpleUserSimulation>();
 	private static ArrayList<Server> servers = new ArrayList<Server>();
 
 	private ThreadPoolExecutor workers;
@@ -106,6 +111,13 @@ public class Simulation {
 		return xy;
 	}
 
+	private void intiUsers() throws NoSuchAlgorithmException, UnsupportedEncodingException {
+
+		for (int i = 1; i <= NUM_USERS_SIMULATE; i++) {
+			initRandomUser(i);
+		}
+	}
+	
 	private void initRandomUser(int id) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
 		int xy[] = getNewRadomPosition();
@@ -115,21 +127,12 @@ public class Simulation {
 
 		GridLocation loc = new GridLocation(x, y);
 		BluetoothSimulation bltth = new BluetoothSimulation(BLUETOOTH_RANGE,
-				ArtificialSimpleUser.convertPosToBluetoothPort(x, y), BLUETOOTH_PORT, GRID_X, GRID_Y);
+				SimpleUserSimulation.convertPosToBluetoothPort(x, y), BLUETOOTH_PORT, GRID_X, GRID_Y);
 
 		SimulatedServer ss = serverRepository.findById(1).get();
 		PublicKey pubServer = CryptoUtils.getPublicKeyFromString(ss.getPublicKey());
-		users.add(new ArtificialSimpleUser(serverHost, serverPort, loc, bltth, NUM_EPOCHS, getUserKeys(id), pubServer,
+		users.add(new SimpleUserSimulation(serverHost, serverPort, loc, bltth, NUM_EPOCHS, getUserKeys(id), pubServer,
 				id));
-	}
-
-	private void intiUsers() throws NoSuchAlgorithmException, UnsupportedEncodingException {
-
-		for (int i = 1; i <= NUM_USERS_SIMULATE; i++) {
-			initRandomUser(i);
-			System.out.println("saved usser");
-		}
-		System.out.println("Exit");
 	}
 
 	private void setUpWorkers() {
@@ -139,10 +142,10 @@ public class Simulation {
 	}
 
 	private void computeSimulation() {
-		for (ArtificialSimpleUser user : users) {
+		for (SimpleUserSimulation user : users) {
 			Runnable task = () -> {
 				try {
-					user.startSimulation(4);
+					user.startSimulation(1);
 				} catch (InterruptedException | UnsupportedEncodingException e) {
 					e.printStackTrace();
 				} catch (InvalidAlgorithmParameterException e) {
@@ -165,7 +168,6 @@ public class Simulation {
 	}
 
 	private KeyPair getServerKeys(int i) {
-		System.out.println("id= " + i);
 		SimulatedServer srver = serverRepository.findById(i).get();
 
 		String priv = srver.getPrivateKey();
@@ -208,7 +210,7 @@ public class Simulation {
 
 	public void advanceEpoch() {
 		currEpoch++;
-		for (ArtificialSimpleUser u : users) {
+		for (SimpleUserSimulation u : users) {
 			u.setEpoch(currEpoch);
 		}
 		for (Server s : servers) {
@@ -216,7 +218,27 @@ public class Simulation {
 		}
 	}
 
+	private void setupLogger() {
+		Logger logger = Logger.getLogger(Logger.class.getName());
+
+		// Add ConsoleHandler
+
+		FileHandler fh;
+		try {
+			fh = new FileHandler("simulationLogger.log");
+			fh.setLevel(Level.ALL);
+			logger.addHandler(fh);
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		logger.info("Logger created");
+
+	}
+
 	public static void main(String args[]) {
+
 		SpringApplication.run(Simulation.class, args);
 	}
 
@@ -230,6 +252,7 @@ public class Simulation {
 			dbs.fillFull();
 			Simulation s = new Simulation();
 			try {
+				s.setupLogger();
 				s.initRepos(serverRepository, userRepository, clientRepository, clientEpochRepository, epochRepository);
 				startMap();
 				s.createServers();
@@ -238,6 +261,7 @@ public class Simulation {
 				s.intiUsers();
 				s.computeSimulation();
 				s.startServers();
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

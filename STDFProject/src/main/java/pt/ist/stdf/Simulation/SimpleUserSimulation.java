@@ -1,6 +1,5 @@
 package pt.ist.stdf.Simulation;
 
-
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.io.UnsupportedEncodingException;
@@ -31,21 +30,14 @@ import pt.ist.stdf.UserProgram.Bluetooth.BluetoothSimulation;
 import pt.ist.stdf.UserProgram.Location.GridLocation;
 import pt.ist.stdf.UserProgram.User.SimpleUser;
 
-public class ArtificialSimpleUser extends SimpleUser {
+public class SimpleUserSimulation extends SimpleUser {
 
-	private int numEpochToSimulate;
-
-	
-	public ArtificialSimpleUser(String serverHost, int serverPort, GridLocation loc, Bluetooth bltth,
-			int numEpochToSimulate, KeyPair kp,PublicKey serverPK,int id) {
-		super(serverHost, serverPort, loc, bltth, kp,serverPK,id);
-		System.out.println("Init user");
-		this.numEpochToSimulate = numEpochToSimulate;
-		this.setEpoch(numEpochToSimulate);
+	public SimpleUserSimulation(String serverHost, int serverPort, GridLocation loc, Bluetooth bltth,
+			int numEpochToSimulate, KeyPair kp, PublicKey serverPK, int id) {
+		super(serverHost, serverPort, loc, bltth, kp, serverPK, id);
 	}
 
 	public static int convertPosToBluetoothPort(int x, int y) {
-
 		return Simulation.BLUETOOTH_PORT + y * Simulation.GRID_X + x;
 	}
 
@@ -55,16 +47,14 @@ public class ArtificialSimpleUser extends SimpleUser {
 	}
 
 	public void advanceEpoch() {
-
-		numEpochToSimulate++;
+		setEpoch(getEpoch() + 1);
 	}
-	
+
 	public void _requestProof() {
-		this.requestLocationProof();
+		this.requestLocationProof();// this will requestLocationProof(), wait for responses in a given time and then
+		// submitLocationReport()		
 	}
 
-	 
-	
 	private void _submitLocationToServe() {
 
 	}
@@ -73,29 +63,23 @@ public class ArtificialSimpleUser extends SimpleUser {
 
 	}
 
-	public void startSimulation(int type) throws InterruptedException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
+	public void startSimulation(int type)
+			throws InterruptedException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
 		switch (type) {
 		case 0:
-			JsonArray rep0 = generateTestReports();
-			JsonObject jj = generateSubmitLocationReport(rep0, 3);
-			submitLocationReport(jj);
-			System.out.println("[CLIENT] Submitted location report");
+			_requestProof();
 			break;
 		case 1:
-			JsonObject ja = generateObtainLocationReport();
-			submitLocationReport(ja);
-			System.out.println("[CLIENT] Obtain location report");
-
-			// listenForResponse();
+			Thread.sleep(1000);
+			_requestProof();
 			break;
 		case 2:
-			//JsonObject je = generateObtainLocationReportHA();
-			//submitLocationReport(je);
-			System.out.println("[HA CLIENT] Obtain location report");
+			Thread.sleep(3000);
+			_requestProof();
 			break;
 		case 3:
-			//JsonObject jo = generateObtainUsersAtLocationHA();
-			//submitLocationReport(jo);
+			// JsonObject jo = generateObtainUsersAtLocationHA();
+			// submitLocationReport(jo);
 			System.out.println("[HA CLIENT] Obtain users @ location");
 			break;
 		case 4:
@@ -122,17 +106,12 @@ public class ArtificialSimpleUser extends SimpleUser {
 			System.out.println("[CLIENT] Submit shared key");
 			break;
 		case 5:
-			System.out.println("[CLIENT " + getId() + "] LocationRequest");
-			_requestProof();
+			System.out.println("[HA CLIENT] Obtain location report");
 			break;
 
 		default:
 			break;
 		}
 	}
-
-		
-
-	
 
 }
