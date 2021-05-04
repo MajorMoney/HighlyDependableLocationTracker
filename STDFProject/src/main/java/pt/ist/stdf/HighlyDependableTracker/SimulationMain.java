@@ -13,8 +13,6 @@ import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -212,14 +210,8 @@ public class SimulationMain {
 		}
 	}
 
-	private static final Logger LOGGER = LogManager.getLogger(SimulationMain.class);
-
 	public static void main(String args[]) {
 		SpringApplication.run(SimulationMain.class, args);
-		LOGGER.info("Info level log message");
-		LOGGER.debug("Debug level log message");
-		LOGGER.error("Error level log message");
-
 	}
 
 	@Bean
