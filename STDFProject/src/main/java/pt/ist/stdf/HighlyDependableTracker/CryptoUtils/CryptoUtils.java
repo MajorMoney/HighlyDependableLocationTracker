@@ -186,7 +186,6 @@ public class CryptoUtils {
         byte[] signatureBytes = signature.sign();
         byte[] encryptedByteValue = Base64.getEncoder().encode(signatureBytes);
         signedString = new String(encryptedByteValue, "UTF-8");
-        System.out.println(signedString);
         return signedString;
     }
 

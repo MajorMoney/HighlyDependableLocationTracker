@@ -45,19 +45,19 @@ public class ServerResponseListener extends Thread{
 	public void run() {
 		System.out.println("STARTING");
 		byte[] buf = new byte[BUFFER_SIZE];
+		String s="";
 		while(true) {
-		try {
-			
+		try {	
 			inStream.read(buf,0,buf.length);
-			String s = new String(buf,StandardCharsets.UTF_8);
+			s = new String(buf,StandardCharsets.UTF_8);
+			System.out.println("\n\n\n###ERROR ON MESSAGE###\n"+s+"\n\n\n");
 			JsonObject msg = JsonParser.parseString(s.trim()).getAsJsonObject();
 			messages.put(msg);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) {	
+			
 			e.printStackTrace();
-			return;
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+			System.out.println("\n\n\n###ERROR ON MESSAGE###\n"+s+"\n\n\n");
 			e.printStackTrace();
 		}}
 		

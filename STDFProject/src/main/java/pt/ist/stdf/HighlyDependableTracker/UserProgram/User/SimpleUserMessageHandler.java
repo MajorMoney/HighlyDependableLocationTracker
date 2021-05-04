@@ -51,7 +51,6 @@ public class SimpleUserMessageHandler extends Thread{
 		int msgType;
 		msgType=msg.get("msgType").getAsInt();
 		if(msgType==REQUEST_VALDATION) {
-//			System.out.println("RECEIVED REQUEST_VALDATION");
 			Runnable task = () -> {
 				user.respondLocationProof(msg);
 			};
@@ -87,7 +86,6 @@ public class SimpleUserMessageHandler extends Thread{
 	}
 	
 	public void run(){
-		
 		while(true) {
 			try {
 				JsonObject msg = messages.take();

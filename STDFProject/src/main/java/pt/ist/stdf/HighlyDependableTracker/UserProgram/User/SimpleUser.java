@@ -78,14 +78,13 @@ public class SimpleUser extends User {
 		this.loc = loc;
 		this.bltth = bltth;
 	
-		
 		openReportMakers = new HashMap<Integer, ReportList>();
 		sentReports = Collections.synchronizedList(new ArrayList<Integer>());
 		setUpTimer();
-		openServerConnection(); // Temporariariament aqui
+		openServerConnection(); 
 		messageHandler = new SimpleUserMessageHandler(this, bltth);
 		messageHandler.start();
-		System.out.println("User ID: "+getId()+" Was created at position " + loc.getCurrentLocation()+" with keypair"+kp.toString()+"Key server"+ serverPK.toString());
+		System.out.println("User ID: "+getId()+" Was created at position " + loc.getCurrentLocation());
 
 	}
 
@@ -133,7 +132,6 @@ public class SimpleUser extends User {
 		if (!checkSentReports(msgId)) {
 			synchronized (sentReports) {
 				sentReports.add(msgId);
-				System.out.println("User ID:"+getId()+" Report Added with msgID: " + msgId + checkSentReports(msgId) + "\n ");
 			}
 		} else {
 			System.out.println("User ID:"+getId()+" Strange, Report alredy sent with Id: " + msgId+"\n");
@@ -144,7 +142,6 @@ public class SimpleUser extends User {
 	private synchronized void removeSentReport(int msgId) {
 		synchronized (sentReports) {
 			sentReports.remove(sentReports.indexOf(msgId));
-			System.out.println("User ID:"+getId()+" Report Destroyed with msgID: " + msgId + checkSentReports(msgId) + "\n ");
 		}
 	}
 
@@ -166,10 +163,8 @@ public class SimpleUser extends User {
 				openReportMakers.put(msgId, rm);
 				openReportMakers.get(msgId).add(msg);
 				startNewTimer(rm, msgId);
-				System.out.println("User ID:"+getId()+" ReportMaker Created with msgID: " + msgId + "\n ");
 			} else {
 				openReportMakers.get(msgId).add(msg);
-				System.out.println("User ID:"+getId()+" Report Added to ReportMaker with msgID: " + msgId  + "\n ");
 			}
 
 		}
@@ -178,13 +173,40 @@ public class SimpleUser extends User {
 	private synchronized void removeReportMaker(int msgId) {
 		synchronized (openReportMakers) {
 			openReportMakers.remove(msgId);
-		}
-		System.out.println("User ID:"+getId()+" ReportMaker Destroyed with msgID: " + msgId + checkReportMaker(msgId) + "\n ");
+		}	
 	}
 
+	//Starts a timer which represents the window for reciving requests and in the end submits the proof to the server
+	private void startNewTimer(ReportList rm, int msgId) {
+		timer.schedule(new Runnable() {
+			public void run() {
+				try {
+					removeSentReport(msgId);
+					removeReportMaker(msgId);
+					submitLocationReport(generateSubmitLocationReport(rm.getAllReports(), msgId));
+					System.out.println("User ID:" + getId() + " Submited LocationReport With Proof Reports \n"
+							+ generateSubmitLocationReport(rm.getAllReports(), msgId).toString() + "\n");
+				} catch (Error e) {
+					e.printStackTrace();
+				}
+			}
+		}, 2000, TimeUnit.MILLISECONDS);
+	}
+	
 	// ###JSON Messages constructing functions##//
 
-	// Generates Report to send other users
+	// Broadcast Request to other users
+	public void requestLocationProof() {
+		String msg = generateLocationRequest();
+		try {
+			System.out.println("User ID: " + this.getId() + "requested Location proof");
+			bltth.sendBroadcastToNearby(msg);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// Generates A location proof request to send other users
 	private String generateLocationRequest() {
 
 		JsonObject msgData = new JsonObject();
@@ -202,15 +224,7 @@ public class SimpleUser extends User {
 
 		return obj.toString();
 	}
-
-	// Responds to a proof request
-	private static StringBuilder getMimeBuffer() {
-	    StringBuilder buffer = new StringBuilder();
-	    for (int count = 0; count < 10; ++count) {
-	        buffer.append(UUID.randomUUID().toString());
-	    }
-	    return buffer;
-	}
+	
 	public void respondLocationProof(JsonObject msg) {
 
 		System.out.println("User ID:" + this.getId() + " received proof request from user ID:" + msg.get("userId")
@@ -224,45 +238,14 @@ public class SimpleUser extends User {
 		msgData.addProperty("position", loc.getCurrentLocation());
 		msgData.addProperty("signer",getId());
 		try {
-			//char[] padding = { '=' };
-//			byte[] signature =msgData.toString().getBytes();
-			//CryptoUtils.preHash(signature);
 			String s = msgData.toString();
 			String signedData = CryptoUtils.sign(s,getKp().getPrivate());
-//			signature=CryptoUtils.signMessageRSA(signature, getKp().getPrivate());
-//			byte[] encodedAsBytes = signature;
-//			String encodedMime = Base64.getMimeEncoder().withoutPadding().encodeToString(encodedAsBytes);
-			//String returnValue = new String(Base64.getUrlEncoder().encode(signature)).substring(0,new String( Base64.getUrlEncoder().encode(signature)).length()-2).replace('+', '-').replace('/', '_');
-			//new String(signature)
 			msg.addProperty("signature",signedData);
 			msg.addProperty("pk", getKp().getPublic().toString());
 		} catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		bltth.respondRequest(msg);
-
-		// else
-		// report to server
-
-	}
-
-	public JsonArray generateTestReports() {
-		JsonArray jsonArr = new JsonArray();
-		for (int i = 0; i < MAX_NUM_REPORTS; i++) {
-
-			JsonObject msgData = new JsonObject();
-			Random r = new Random();
-			msgData.addProperty("epoch", epoch + r.nextInt(5));
-			JsonObject obj = new JsonObject();
-			obj.addProperty("msgType", ClientMessageTypes.userReport.getValue());
-			int low = 90;
-			int high = 101;
-			int result = r.nextInt(high - low) + low;
-			obj.addProperty("userId", result);
-			obj.add("msgData", msgData);
-			jsonArr.add(obj);
-		}
-		return jsonArr;
 	}
 
 	// Generate report message for server
@@ -282,23 +265,14 @@ public class SimpleUser extends User {
 
 		return obj;
 	}
-
-	// Generate report message for server
-	public JsonObject generateObtainLocationReport() {
-		JsonObject msgData = new JsonObject();
-		msgData.addProperty("epoch", epoch);
-
-		JsonObject obj = new JsonObject();
-
-		obj.addProperty("msgType", ClientMessageTypes.obtainLocationReport.getValue());
-		Random r = new Random();
-		int low = 1;
-		int high = 5;
-		int result = r.nextInt(high - low) + low;
-		obj.addProperty("userId", result);
-		obj.add("msgData", msgData);
-
-		return obj;
+	
+	public void submitLocationReport(JsonObject j) {
+		try {
+			out.write(j.toString().getBytes(StandardCharsets.UTF_8));
+			out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public JsonObject generateSubmitSharedKey() throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, UnsupportedEncodingException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
@@ -308,11 +282,8 @@ public class SimpleUser extends User {
 		msg.addProperty("userId", getId());
 		msg.addProperty("msgType",  ClientMessageTypes.submitSharedKey.getValue());
 		
-		
-		
 		SecretKey key = CryptoUtils.generateKeyAES();
-		//store key in safe way
-		
+		//store key in safe way	
 		JsonObject cipheredMsgData = new JsonObject();
 		String key_s = java.util.Base64.getEncoder().encodeToString(key.getEncoded());
 		String signedKey = CryptoUtils.sign(key_s, getKp().getPrivate());
@@ -329,14 +300,12 @@ public class SimpleUser extends User {
 		return msg;
 	}
 
-
 	public JsonObject generateSubmitSharedKeyTest() throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
 		JsonObject msg = new JsonObject();
 		msg.addProperty("userId", getId());
 		msg.addProperty("msgType",  ClientMessageTypes.submitSharedKey.getValue());
 		JsonObject cipheredMsgData = new JsonObject();
 		
-
 		SecretKey key = CryptoUtils.generateKeyAES();
 		byte[] encoded =key.getEncoded();
 		
@@ -348,12 +317,8 @@ public class SimpleUser extends User {
         String bb = Base64.getEncoder().encodeToString(encoded);
         String s = new String(encoded, "UTF-8");
 
-        
-        System.out.println(s.length());
 		cipheredMsgData.addProperty("sharedKeyNotSigned", bb);
-		
-		
-		
+			
 		JsonObject encryptedData = new JsonObject();
 		encryptedData.addProperty("isTrue", true);
 		IvParameterSpec iv= CryptoUtils.generateIv();
@@ -365,25 +330,14 @@ public class SimpleUser extends User {
 		
 		cipheredMsgData.addProperty("encryptedString", encryptedString);
 		msg.add("msgData", cipheredMsgData);
-		System.out.println("[client sending AES key]:"+key.toString());
+		//System.out.println("[client sending AES key]:"+key.toString());
 		return msg;
 		
 	}
-	// ##General Procedure Methods##//
 
-	// Broadcast Request to other users
-	public void requestLocationProof() {
-		String msg = generateLocationRequest();
-		try {
-			System.out.println("User ID: " + this.getId() + " requested proof of identification");
-			bltth.sendBroadcastToNearby(msg);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	// Handle a response to a proof previously submitted
+	//##requests and responses HANDLERS##//
+	
+	// Handle a proof response to a request previously broadcasted
 	public void hadleResponseMessage(JsonObject msg) {
 		msg.remove("senderPort");
 
@@ -396,7 +350,7 @@ public class SimpleUser extends User {
 				tryAddToReportMaker(msgId, msg, rm);		
 		}
 	}
-
+	
 	public void handleServerResponseObtainLocRepMessage(JsonObject msg) {
 		int userId = msg.get("userId").getAsInt();
 		JsonObject msgData = msg.get("msgData").getAsJsonObject();
@@ -406,7 +360,6 @@ public class SimpleUser extends User {
 				(int) positionString1[1].charAt(positionString1[1].length() - 1));
 		System.out.println("[CLIENT FINAL: OBTAINS USER LOCATION " + userId + " epoch asked: " + epoch
 				+ "->> position returned: " + gp.getCurrentLocation());
-
 	}
 
 	public void handleServerResponseObtainUsersAtLocationMessage(JsonObject msg) {
@@ -423,7 +376,6 @@ public class SimpleUser extends User {
 
 		System.out.println("[CLIENT FINAL: OBTAINS USERS AT LOCATION " + userId + " epoch asked: " + epoch
 				+ "->> position returned: " + gp.getCurrentLocation());
-
 	}
 
 	public void handleServerResponseObtainLocationMessageHA(JsonObject msg) {
@@ -436,35 +388,8 @@ public class SimpleUser extends User {
 				Integer.parseInt(String.valueOf(positionString1[1].charAt(positionString1[1].length() - 1))));
 		System.out.println("[CLIENT HA FINAL: OBTAINS USER LOCATION " + userId + " epoch asked: " + epoch
 				+ "->> position returned: " + gp.getCurrentLocation());
-
-	}
-
-	private void startNewTimer(ReportList rm, int msgId) {
-		timer.schedule(new Runnable() {
-			public void run() {
-				try {
-					removeSentReport(msgId);
-					removeReportMaker(msgId);
-					submitLocationReport(generateSubmitLocationReport(rm.getAllReports(), msgId));
-					System.out.println("User ID:" + getId() + " Sent Location Request With Proof Reports \n"
-							+ generateSubmitLocationReport(rm.getAllReports(), msgId).toString() + "\n");
-				} catch (Error e) {
-					e.printStackTrace();
-				}
-			}
-		}, 2000, TimeUnit.MILLISECONDS);
 	}
 	
-	public void submitLocationReport(JsonObject j) {
-		try {
-			out.write(j.toString().getBytes(StandardCharsets.UTF_8));
-			out.flush();
-			// out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	private void closeServerConnection() {
 		try {
 			serverSocket.close();

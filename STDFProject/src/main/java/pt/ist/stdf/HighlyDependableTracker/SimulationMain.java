@@ -24,14 +24,15 @@ import pt.ist.stdf.HighlyDependableTracker.CryptoUtils.CryptoUtils;
 import pt.ist.stdf.HighlyDependableTracker.Model.SimulatedServer;
 import pt.ist.stdf.HighlyDependableTracker.Model.SimulatedUser;
 import pt.ist.stdf.HighlyDependableTracker.ServerProgram.Server;
-import pt.ist.stdf.HighlyDependableTracker.Simulation.ArtificialSimpleUser;
+import pt.ist.stdf.HighlyDependableTracker.Simulation.SimpleUserSimulation;
 import pt.ist.stdf.HighlyDependableTracker.Simulation.DB_Seeder;
 import pt.ist.stdf.HighlyDependableTracker.UserProgram.Bluetooth.BluetoothSimulation;
 import pt.ist.stdf.HighlyDependableTracker.UserProgram.Location.GridLocation;
 import pt.ist.stdf.HighlyDependableTracker.data.*;
 
 @Configuration
-@SpringBootApplication(scanBasePackageClasses = {ClientRepository.class,SimulatedUserRepository.class,SimulatedServerRepository.class})
+@SpringBootApplication(scanBasePackageClasses = { ClientRepository.class, SimulatedUserRepository.class,
+		SimulatedServerRepository.class })
 public class SimulationMain {
 
 	private static final int NUM_EPOCHS = 40;
@@ -49,17 +50,17 @@ public class SimulationMain {
 
 	private int currEpoch = 1;
 	@Autowired
-    SimulatedUserRepository userRepository;
+	SimulatedUserRepository userRepository;
 	@Autowired
-    SimulatedServerRepository serverRepository;
+	SimulatedServerRepository serverRepository;
 	@Autowired
-    ClientRepository clientRepository;
+	ClientRepository clientRepository;
 	@Autowired
-    EpochRepository epochRepository;
+	EpochRepository epochRepository;
 	@Autowired
-    ClientEpochRepository clientEpochRepository;
+	ClientEpochRepository clientEpochRepository;
 
-	private static ArrayList<ArtificialSimpleUser> users = new ArrayList<ArtificialSimpleUser>();
+	private static ArrayList<SimpleUserSimulation> users = new ArrayList<SimpleUserSimulation>();
 	private static ArrayList<Server> servers = new ArrayList<Server>();
 
 	private ThreadPoolExecutor workers;
@@ -110,11 +111,11 @@ public class SimulationMain {
 
 		GridLocation loc = new GridLocation(x, y);
 		BluetoothSimulation bltth = new BluetoothSimulation(BLUETOOTH_RANGE,
-				ArtificialSimpleUser.convertPosToBluetoothPort(x, y), BLUETOOTH_PORT, GRID_X, GRID_Y);
+				SimpleUserSimulation.convertPosToBluetoothPort(x, y), BLUETOOTH_PORT, GRID_X, GRID_Y);
 
 		SimulatedServer ss = serverRepository.findById(1).get();
 		PublicKey pubServer = CryptoUtils.getPublicKeyFromString(ss.getPublicKey());
-		users.add(new ArtificialSimpleUser(serverHost, serverPort, loc, bltth, NUM_EPOCHS, getUserKeys(id), pubServer,
+		users.add(new SimpleUserSimulation(serverHost, serverPort, loc, bltth, NUM_EPOCHS, getUserKeys(id), pubServer,
 				id));
 	}
 
@@ -122,9 +123,7 @@ public class SimulationMain {
 
 		for (int i = 1; i <= NUM_USERS_SIMULATE; i++) {
 			initRandomUser(i);
-			System.out.println("saved usser");
 		}
-		System.out.println("Exit");
 	}
 
 	private void setUpWorkers() {
@@ -134,10 +133,10 @@ public class SimulationMain {
 	}
 
 	private void computeSimulation() {
-		for (ArtificialSimpleUser user : users) {
+		for (SimpleUserSimulation user : users) {
 			Runnable task = () -> {
 				try {
-					user.startSimulation(4);
+					user.startSimulation((int) (Math.random()*3));
 				} catch (InterruptedException | UnsupportedEncodingException e) {
 					e.printStackTrace();
 				} catch (InvalidAlgorithmParameterException e) {
@@ -198,12 +197,12 @@ public class SimulationMain {
 				System.out.println("ADVANCE A NEW EPOCH TO " + currEpoch);
 			}
 		};
-		myTimer.scheduleAtFixedRate(myTask, 0l, (20 * 1000));
+		myTimer.scheduleAtFixedRate(myTask, (20 * 1000), (20 * 1000));
 	}
 
 	public void advanceEpoch() {
 		currEpoch++;
-		for (ArtificialSimpleUser u : users) {
+		for (SimpleUserSimulation u : users) {
 			u.setEpoch(currEpoch);
 		}
 		for (Server s : servers) {

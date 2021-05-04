@@ -1,4 +1,4 @@
-package pt.ist.stdf.Simulation;
+package pt.ist.stdf.HighlyDependableTracker.Simulation;
 
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -24,11 +24,12 @@ import javax.crypto.NoSuchPaddingException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import pt.ist.stdf.CryptoUtils.CryptoUtils;
-import pt.ist.stdf.UserProgram.Bluetooth.Bluetooth;
-import pt.ist.stdf.UserProgram.Bluetooth.BluetoothSimulation;
-import pt.ist.stdf.UserProgram.Location.GridLocation;
-import pt.ist.stdf.UserProgram.User.SimpleUser;
+import pt.ist.stdf.HighlyDependableTracker.SimulationMain;
+import pt.ist.stdf.HighlyDependableTracker.UserProgram.Bluetooth.Bluetooth;
+import pt.ist.stdf.HighlyDependableTracker.UserProgram.Bluetooth.BluetoothSimulation;
+import pt.ist.stdf.HighlyDependableTracker.UserProgram.Location.GridLocation;
+import pt.ist.stdf.HighlyDependableTracker.UserProgram.User.SimpleUser;
+
 
 public class SimpleUserSimulation extends SimpleUser {
 
@@ -38,7 +39,7 @@ public class SimpleUserSimulation extends SimpleUser {
 	}
 
 	public static int convertPosToBluetoothPort(int x, int y) {
-		return Simulation.BLUETOOTH_PORT + y * Simulation.GRID_X + x;
+		return SimulationMain.BLUETOOTH_PORT + y * SimulationMain.GRID_X + x;
 	}
 
 	public void _move(int x, int y) {
@@ -83,27 +84,6 @@ public class SimpleUserSimulation extends SimpleUser {
 			System.out.println("[HA CLIENT] Obtain users @ location");
 			break;
 		case 4:
-			JsonObject joo;
-			try {
-				joo = generateSubmitSharedKeyTest();
-				submitLocationReport(joo);
-			} catch (InvalidKeyException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchPaddingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalBlockSizeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (BadPaddingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("[CLIENT] Submit shared key");
 			break;
 		case 5:
 			System.out.println("[HA CLIENT] Obtain location report");
