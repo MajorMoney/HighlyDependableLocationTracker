@@ -1,0 +1,10 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# CodeStream ignored files
+/../../STDFProject\.idea/codestream.xml
+# Datasource local storage ignored files
+/../../../../../../../../../../:\Users\sksur\OneDrive\Ambiente de Trabalho\IST-2ºSem\SEC - Sistemas de Elevada Confiabilidade\HighlyDependableLocationTracker\STDFProject\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/

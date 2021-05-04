@@ -1,0 +1,262 @@
+[INFO ] 04-05-2021 15:51:01.152 [background-preinit] Version - HV000001: Hibernate Validator 6.0.13.Final
+[INFO ] 04-05-2021 15:51:01.186 [main] SimulationMain - Starting SimulationMain using Java 14.0.1 on DESKTOP-3MTT9II with PID 21276 (C:\Users\sksur\OneDrive\Ambiente de Trabalho\IST-2ºSem\SEC - Sistemas de Elevada Confiabilidade\HighlyDependableLocationTracker\STDFProject\target\classes started by sksur in C:\Users\sksur\OneDrive\Ambiente de Trabalho\IST-2ºSem\SEC - Sistemas de Elevada Confiabilidade\HighlyDependableLocationTracker\STDFProject)
+[INFO ] 04-05-2021 15:51:01.190 [main] SimulationMain - No active profile set, falling back to default profiles: default
+[INFO ] 04-05-2021 15:51:01.743 [main] RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[INFO ] 04-05-2021 15:51:01.833 [main] RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 82 ms. Found 5 JPA repository interfaces.
+[INFO ] 04-05-2021 15:51:02.241 [main] TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+[INFO ] 04-05-2021 15:51:02.248 [main] Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+[INFO ] 04-05-2021 15:51:02.249 [main] StandardService - Starting service [Tomcat]
+[INFO ] 04-05-2021 15:51:02.249 [main] StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.43]
+[INFO ] 04-05-2021 15:51:02.358 [main] [/] - Initializing Spring embedded WebApplicationContext
+[INFO ] 04-05-2021 15:51:02.358 [main] ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1129 ms
+[INFO ] 04-05-2021 15:51:02.479 [main] LogHelper - HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO ] 04-05-2021 15:51:02.538 [main] Version - HHH000412: Hibernate Core {5.2.9.Final}
+[INFO ] 04-05-2021 15:51:02.539 [main] Environment - HHH000206: hibernate.properties not found
+[INFO ] 04-05-2021 15:51:02.569 [main] Version - HCANN000001: Hibernate Commons Annotations {5.0.1.Final}
+[INFO ] 04-05-2021 15:51:02.666 [main] HikariDataSource - HikariPool-1 - Starting...
+[INFO ] 04-05-2021 15:51:02.788 [main] HikariDataSource - HikariPool-1 - Start completed.
+[INFO ] 04-05-2021 15:51:02.798 [main] Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
+[WARN ] 04-05-2021 15:51:02.975 [main] RootClass - HHH000038: Composite-id class does not override equals(): pt.ist.stdf.HighlyDependableTracker.Model.ClientEpochId
+[WARN ] 04-05-2021 15:51:02.975 [main] RootClass - HHH000039: Composite-id class does not override hashCode(): pt.ist.stdf.HighlyDependableTracker.Model.ClientEpochId
+[DEBUG] 04-05-2021 15:51:03.260 [main] SQL - alter table server_client_epochs add constraint FKja97ifdwli1fxdo81jlephk9u foreign key (client_id) references server_clients (client_id)
+[DEBUG] 04-05-2021 15:51:03.277 [main] SQL - alter table server_client_epochs add constraint FKh23la57sv840afh5hn0i1hgqn foreign key (epoch_id) references server_epochs (epoch_id)
+[INFO ] 04-05-2021 15:51:03.290 [main] LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+[INFO ] 04-05-2021 15:51:03.573 [main] QueryTranslatorFactoryInitiator - HHH000397: Using ASTQueryTranslatorFactory
+[WARN ] 04-05-2021 15:51:03.728 [main] JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[INFO ] 04-05-2021 15:51:03.806 [main] ThreadPoolTaskExecutor - Initializing ExecutorService 'applicationTaskExecutor'
+[INFO ] 04-05-2021 15:51:03.967 [main] Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+[INFO ] 04-05-2021 15:51:03.997 [main] TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+[INFO ] 04-05-2021 15:51:04.008 [main] SimulationMain - Started SimulationMain in 3.154 seconds (JVM running for 4.038)
+[DEBUG] 04-05-2021 15:51:04.025 [main] SQL - delete from server_client_epochs where x<>-1
+[DEBUG] 04-05-2021 15:51:04.057 [main] SQL - select simulateds0_.id as id1_3_, simulateds0_.private_key as private_2_3_, simulateds0_.public_key as public_k3_3_ from simulated_servers simulateds0_
+[DEBUG] 04-05-2021 15:51:04.081 [main] SQL - delete from simulated_servers where id=?
+[DEBUG] 04-05-2021 15:51:04.089 [main] SQL - select simulatedu0_.id as id1_4_, simulatedu0_.private_key as private_2_4_, simulatedu0_.public_key as public_k3_4_ from simulated_users simulatedu0_
+[DEBUG] 04-05-2021 15:51:04.093 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 15:51:04.094 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 15:51:04.094 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 15:51:04.095 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 15:51:04.095 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 15:51:04.096 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 15:51:04.096 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 15:51:04.096 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 15:51:04.100 [main] SQL - select client0_.client_id as client_i1_1_, client0_.public_key as public_k2_1_, client0_.shared_key as shared_k3_1_ from server_clients client0_
+[DEBUG] 04-05-2021 15:51:04.111 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.client_id as client_i3_0_1_, clientepoc0_.epoch_id as epoch_id4_0_1_, clientepoc0_.x as x1_0_1_, clientepoc0_.y as y2_0_1_, epoch1_.epoch_id as epoch_id1_2_2_ from server_client_epochs clientepoc0_ inner join server_epochs epoch1_ on clientepoc0_.epoch_id=epoch1_.epoch_id where clientepoc0_.client_id=?
+[DEBUG] 04-05-2021 15:51:04.115 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.client_id as client_i3_0_1_, clientepoc0_.epoch_id as epoch_id4_0_1_, clientepoc0_.x as x1_0_1_, clientepoc0_.y as y2_0_1_, epoch1_.epoch_id as epoch_id1_2_2_ from server_client_epochs clientepoc0_ inner join server_epochs epoch1_ on clientepoc0_.epoch_id=epoch1_.epoch_id where clientepoc0_.client_id=?
+[DEBUG] 04-05-2021 15:51:04.116 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.client_id as client_i3_0_1_, clientepoc0_.epoch_id as epoch_id4_0_1_, clientepoc0_.x as x1_0_1_, clientepoc0_.y as y2_0_1_, epoch1_.epoch_id as epoch_id1_2_2_ from server_client_epochs clientepoc0_ inner join server_epochs epoch1_ on clientepoc0_.epoch_id=epoch1_.epoch_id where clientepoc0_.client_id=?
+[DEBUG] 04-05-2021 15:51:04.117 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.client_id as client_i3_0_1_, clientepoc0_.epoch_id as epoch_id4_0_1_, clientepoc0_.x as x1_0_1_, clientepoc0_.y as y2_0_1_, epoch1_.epoch_id as epoch_id1_2_2_ from server_client_epochs clientepoc0_ inner join server_epochs epoch1_ on clientepoc0_.epoch_id=epoch1_.epoch_id where clientepoc0_.client_id=?
+[DEBUG] 04-05-2021 15:51:04.119 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.client_id as client_i3_0_1_, clientepoc0_.epoch_id as epoch_id4_0_1_, clientepoc0_.x as x1_0_1_, clientepoc0_.y as y2_0_1_, epoch1_.epoch_id as epoch_id1_2_2_ from server_client_epochs clientepoc0_ inner join server_epochs epoch1_ on clientepoc0_.epoch_id=epoch1_.epoch_id where clientepoc0_.client_id=?
+[DEBUG] 04-05-2021 15:51:04.122 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.client_id as client_i3_0_1_, clientepoc0_.epoch_id as epoch_id4_0_1_, clientepoc0_.x as x1_0_1_, clientepoc0_.y as y2_0_1_, epoch1_.epoch_id as epoch_id1_2_2_ from server_client_epochs clientepoc0_ inner join server_epochs epoch1_ on clientepoc0_.epoch_id=epoch1_.epoch_id where clientepoc0_.client_id=?
+[DEBUG] 04-05-2021 15:51:04.123 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.client_id as client_i3_0_1_, clientepoc0_.epoch_id as epoch_id4_0_1_, clientepoc0_.x as x1_0_1_, clientepoc0_.y as y2_0_1_, epoch1_.epoch_id as epoch_id1_2_2_ from server_client_epochs clientepoc0_ inner join server_epochs epoch1_ on clientepoc0_.epoch_id=epoch1_.epoch_id where clientepoc0_.client_id=?
+[DEBUG] 04-05-2021 15:51:04.125 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.client_id as client_i3_0_1_, clientepoc0_.epoch_id as epoch_id4_0_1_, clientepoc0_.x as x1_0_1_, clientepoc0_.y as y2_0_1_, epoch1_.epoch_id as epoch_id1_2_2_ from server_client_epochs clientepoc0_ inner join server_epochs epoch1_ on clientepoc0_.epoch_id=epoch1_.epoch_id where clientepoc0_.client_id=?
+[DEBUG] 04-05-2021 15:51:04.128 [main] SQL - delete from server_clients where client_id=?
+[DEBUG] 04-05-2021 15:51:04.129 [main] SQL - delete from server_clients where client_id=?
+[DEBUG] 04-05-2021 15:51:04.129 [main] SQL - delete from server_clients where client_id=?
+[DEBUG] 04-05-2021 15:51:04.130 [main] SQL - delete from server_clients where client_id=?
+[DEBUG] 04-05-2021 15:51:04.130 [main] SQL - delete from server_clients where client_id=?
+[DEBUG] 04-05-2021 15:51:04.131 [main] SQL - delete from server_clients where client_id=?
+[DEBUG] 04-05-2021 15:51:04.132 [main] SQL - delete from server_clients where client_id=?
+[DEBUG] 04-05-2021 15:51:04.132 [main] SQL - delete from server_clients where client_id=?
+[DEBUG] 04-05-2021 15:51:04.136 [main] SQL - select epoch0_.epoch_id as epoch_id1_2_ from server_epochs epoch0_
+[DEBUG] 04-05-2021 15:51:04.140 [main] SQL - delete from server_epochs where epoch_id=?
+[DEBUG] 04-05-2021 15:51:04.141 [main] SQL - delete from server_epochs where epoch_id=?
+[DEBUG] 04-05-2021 15:51:04.141 [main] SQL - delete from server_epochs where epoch_id=?
+[DEBUG] 04-05-2021 15:51:04.141 [main] SQL - delete from server_epochs where epoch_id=?
+[DEBUG] 04-05-2021 15:51:04.142 [main] SQL - delete from server_epochs where epoch_id=?
+[DEBUG] 04-05-2021 15:51:04.903 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:04.918 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:05.446 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:05.447 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:05.923 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:05.924 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:06.905 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:06.907 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:07.252 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:07.253 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:08.422 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:08.424 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:10.513 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:10.514 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.823 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:13.825 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.826 [main] SQL - select client0_.client_id as client_i1_1_1_, client0_.public_key as public_k2_1_1_, client0_.shared_key as shared_k3_1_1_, clientepoc1_.client_id as client_i3_0_3_, clientepoc1_.epoch_id as epoch_id4_0_3_, clientepoc1_.client_id as client_i3_0_0_, clientepoc1_.epoch_id as epoch_id4_0_0_, clientepoc1_.x as x1_0_0_, clientepoc1_.y as y2_0_0_ from server_clients client0_ left outer join server_client_epochs clientepoc1_ on client0_.client_id=clientepoc1_.client_id where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:13.828 [main] SQL - insert into server_clients (public_key, shared_key, client_id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.830 [main] SQL - select client0_.client_id as client_i1_1_1_, client0_.public_key as public_k2_1_1_, client0_.shared_key as shared_k3_1_1_, clientepoc1_.client_id as client_i3_0_3_, clientepoc1_.epoch_id as epoch_id4_0_3_, clientepoc1_.client_id as client_i3_0_0_, clientepoc1_.epoch_id as epoch_id4_0_0_, clientepoc1_.x as x1_0_0_, clientepoc1_.y as y2_0_0_ from server_clients client0_ left outer join server_client_epochs clientepoc1_ on client0_.client_id=clientepoc1_.client_id where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:13.832 [main] SQL - insert into server_clients (public_key, shared_key, client_id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.834 [main] SQL - select client0_.client_id as client_i1_1_1_, client0_.public_key as public_k2_1_1_, client0_.shared_key as shared_k3_1_1_, clientepoc1_.client_id as client_i3_0_3_, clientepoc1_.epoch_id as epoch_id4_0_3_, clientepoc1_.client_id as client_i3_0_0_, clientepoc1_.epoch_id as epoch_id4_0_0_, clientepoc1_.x as x1_0_0_, clientepoc1_.y as y2_0_0_ from server_clients client0_ left outer join server_client_epochs clientepoc1_ on client0_.client_id=clientepoc1_.client_id where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:13.835 [main] SQL - insert into server_clients (public_key, shared_key, client_id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.837 [main] SQL - select client0_.client_id as client_i1_1_1_, client0_.public_key as public_k2_1_1_, client0_.shared_key as shared_k3_1_1_, clientepoc1_.client_id as client_i3_0_3_, clientepoc1_.epoch_id as epoch_id4_0_3_, clientepoc1_.client_id as client_i3_0_0_, clientepoc1_.epoch_id as epoch_id4_0_0_, clientepoc1_.x as x1_0_0_, clientepoc1_.y as y2_0_0_ from server_clients client0_ left outer join server_client_epochs clientepoc1_ on client0_.client_id=clientepoc1_.client_id where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:13.838 [main] SQL - insert into server_clients (public_key, shared_key, client_id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.840 [main] SQL - select client0_.client_id as client_i1_1_1_, client0_.public_key as public_k2_1_1_, client0_.shared_key as shared_k3_1_1_, clientepoc1_.client_id as client_i3_0_3_, clientepoc1_.epoch_id as epoch_id4_0_3_, clientepoc1_.client_id as client_i3_0_0_, clientepoc1_.epoch_id as epoch_id4_0_0_, clientepoc1_.x as x1_0_0_, clientepoc1_.y as y2_0_0_ from server_clients client0_ left outer join server_client_epochs clientepoc1_ on client0_.client_id=clientepoc1_.client_id where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:13.841 [main] SQL - insert into server_clients (public_key, shared_key, client_id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.843 [main] SQL - select client0_.client_id as client_i1_1_1_, client0_.public_key as public_k2_1_1_, client0_.shared_key as shared_k3_1_1_, clientepoc1_.client_id as client_i3_0_3_, clientepoc1_.epoch_id as epoch_id4_0_3_, clientepoc1_.client_id as client_i3_0_0_, clientepoc1_.epoch_id as epoch_id4_0_0_, clientepoc1_.x as x1_0_0_, clientepoc1_.y as y2_0_0_ from server_clients client0_ left outer join server_client_epochs clientepoc1_ on client0_.client_id=clientepoc1_.client_id where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:13.844 [main] SQL - insert into server_clients (public_key, shared_key, client_id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.847 [main] SQL - select client0_.client_id as client_i1_1_1_, client0_.public_key as public_k2_1_1_, client0_.shared_key as shared_k3_1_1_, clientepoc1_.client_id as client_i3_0_3_, clientepoc1_.epoch_id as epoch_id4_0_3_, clientepoc1_.client_id as client_i3_0_0_, clientepoc1_.epoch_id as epoch_id4_0_0_, clientepoc1_.x as x1_0_0_, clientepoc1_.y as y2_0_0_ from server_clients client0_ left outer join server_client_epochs clientepoc1_ on client0_.client_id=clientepoc1_.client_id where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:13.849 [main] SQL - insert into server_clients (public_key, shared_key, client_id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.851 [main] SQL - select client0_.client_id as client_i1_1_1_, client0_.public_key as public_k2_1_1_, client0_.shared_key as shared_k3_1_1_, clientepoc1_.client_id as client_i3_0_3_, clientepoc1_.epoch_id as epoch_id4_0_3_, clientepoc1_.client_id as client_i3_0_0_, clientepoc1_.epoch_id as epoch_id4_0_0_, clientepoc1_.x as x1_0_0_, clientepoc1_.y as y2_0_0_ from server_clients client0_ left outer join server_client_epochs clientepoc1_ on client0_.client_id=clientepoc1_.client_id where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:13.852 [main] SQL - insert into server_clients (public_key, shared_key, client_id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.855 [main] SQL - select epoch0_.epoch_id as epoch_id1_2_0_ from server_epochs epoch0_ where epoch0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.855 [main] SQL - insert into server_epochs (epoch_id) values (?)
+[DEBUG] 04-05-2021 15:51:13.856 [main] SQL - select epoch0_.epoch_id as epoch_id1_2_0_ from server_epochs epoch0_ where epoch0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.857 [main] SQL - insert into server_epochs (epoch_id) values (?)
+[DEBUG] 04-05-2021 15:51:13.859 [main] SQL - select epoch0_.epoch_id as epoch_id1_2_0_ from server_epochs epoch0_ where epoch0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.860 [main] SQL - insert into server_epochs (epoch_id) values (?)
+[DEBUG] 04-05-2021 15:51:13.862 [main] SQL - select epoch0_.epoch_id as epoch_id1_2_0_ from server_epochs epoch0_ where epoch0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.864 [main] SQL - insert into server_epochs (epoch_id) values (?)
+[DEBUG] 04-05-2021 15:51:13.866 [main] SQL - select epoch0_.epoch_id as epoch_id1_2_0_ from server_epochs epoch0_ where epoch0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.867 [main] SQL - insert into server_epochs (epoch_id) values (?)
+[DEBUG] 04-05-2021 15:51:13.870 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.871 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.872 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.873 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.875 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.876 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.876 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.877 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.879 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.881 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.881 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.883 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.885 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.886 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.886 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.887 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.888 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.889 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.890 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.891 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.893 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.894 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.895 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.896 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.897 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.898 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.899 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.900 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.901 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.902 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.903 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.904 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.905 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.906 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.908 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.908 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.910 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.911 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.912 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.913 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.914 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.915 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.917 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.918 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.919 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.920 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.921 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.922 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.923 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.924 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.925 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.926 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.928 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.929 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.930 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.930 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.931 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.932 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.933 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.934 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.936 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.936 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.938 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.938 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.940 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.940 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.941 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.942 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.944 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.945 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.946 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.947 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.948 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.949 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.950 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.951 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.952 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.953 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:13.954 [main] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:13.955 [main] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:14.388 [main] SQL - select simulateds0_.id as id1_3_0_, simulateds0_.private_key as private_2_3_0_, simulateds0_.public_key as public_k3_3_0_ from simulated_servers simulateds0_ where simulateds0_.id=?
+[DEBUG] 04-05-2021 15:51:14.389 [main] SQL - insert into simulated_servers (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 15:51:14.393 [main] SQL - select simulateds0_.id as id1_3_0_, simulateds0_.private_key as private_2_3_0_, simulateds0_.public_key as public_k3_3_0_ from simulated_servers simulateds0_ where simulateds0_.id=?
+[DEBUG] 04-05-2021 15:51:14.404 [main] SQL - select simulateds0_.id as id1_3_0_, simulateds0_.private_key as private_2_3_0_, simulateds0_.public_key as public_k3_3_0_ from simulated_servers simulateds0_ where simulateds0_.id=?
+[DEBUG] 04-05-2021 15:51:14.406 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:14.423 [main] SQL - select simulateds0_.id as id1_3_0_, simulateds0_.private_key as private_2_3_0_, simulateds0_.public_key as public_k3_3_0_ from simulated_servers simulateds0_ where simulateds0_.id=?
+[DEBUG] 04-05-2021 15:51:14.425 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:14.428 [main] SQL - select simulateds0_.id as id1_3_0_, simulateds0_.private_key as private_2_3_0_, simulateds0_.public_key as public_k3_3_0_ from simulated_servers simulateds0_ where simulateds0_.id=?
+[DEBUG] 04-05-2021 15:51:14.429 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 15:51:16.472 [Thread-14] SQL - select client0_.client_id as client_i1_1_0_, client0_.public_key as public_k2_1_0_, client0_.shared_key as shared_k3_1_0_ from server_clients client0_ where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:16.476 [Thread-12] SQL - select client0_.client_id as client_i1_1_0_, client0_.public_key as public_k2_1_0_, client0_.shared_key as shared_k3_1_0_ from server_clients client0_ where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:16.477 [Thread-14] SQL - select client0_.client_id as client_i1_1_0_, client0_.public_key as public_k2_1_0_, client0_.shared_key as shared_k3_1_0_ from server_clients client0_ where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:16.479 [Thread-12] SQL - select client0_.client_id as client_i1_1_0_, client0_.public_key as public_k2_1_0_, client0_.shared_key as shared_k3_1_0_ from server_clients client0_ where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:16.480 [Thread-14] SQL - select client0_.client_id as client_i1_1_0_, client0_.public_key as public_k2_1_0_, client0_.shared_key as shared_k3_1_0_ from server_clients client0_ where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:16.482 [Thread-14] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:16.482 [Thread-12] SQL - select client0_.client_id as client_i1_1_0_, client0_.public_key as public_k2_1_0_, client0_.shared_key as shared_k3_1_0_ from server_clients client0_ where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:16.483 [Thread-14] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:16.484 [Thread-12] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:16.485 [Thread-12] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[DEBUG] 04-05-2021 15:51:17.453 [Thread-13] SQL - select client0_.client_id as client_i1_1_0_, client0_.public_key as public_k2_1_0_, client0_.shared_key as shared_k3_1_0_ from server_clients client0_ where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:17.456 [Thread-13] SQL - select client0_.client_id as client_i1_1_0_, client0_.public_key as public_k2_1_0_, client0_.shared_key as shared_k3_1_0_ from server_clients client0_ where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:17.459 [Thread-13] SQL - select client0_.client_id as client_i1_1_0_, client0_.public_key as public_k2_1_0_, client0_.shared_key as shared_k3_1_0_ from server_clients client0_ where client0_.client_id=?
+[DEBUG] 04-05-2021 15:51:17.461 [Thread-13] SQL - select clientepoc0_.client_id as client_i3_0_0_, clientepoc0_.epoch_id as epoch_id4_0_0_, clientepoc0_.x as x1_0_0_, clientepoc0_.y as y2_0_0_ from server_client_epochs clientepoc0_ where clientepoc0_.client_id=? and clientepoc0_.epoch_id=?
+[DEBUG] 04-05-2021 15:51:17.462 [Thread-13] SQL - insert into server_client_epochs (x, y, client_id, epoch_id) values (?, ?, ?, ?)
+[INFO ] 04-05-2021 23:11:33.852 [background-preinit] Version - HV000001: Hibernate Validator 6.0.13.Final
+[INFO ] 04-05-2021 23:11:33.884 [main] SimulationMain - Starting SimulationMain using Java 14.0.1 on DESKTOP-3MTT9II with PID 16020 (C:\Users\sksur\OneDrive\Ambiente de Trabalho\IST-2ºSem\SEC - Sistemas de Elevada Confiabilidade\HighlyDependableLocationTracker\STDFProject\target\classes started by sksur in C:\Users\sksur\OneDrive\Ambiente de Trabalho\IST-2ºSem\SEC - Sistemas de Elevada Confiabilidade\HighlyDependableLocationTracker\STDFProject)
+[INFO ] 04-05-2021 23:11:33.889 [main] SimulationMain - No active profile set, falling back to default profiles: default
+[INFO ] 04-05-2021 23:11:34.664 [main] RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[INFO ] 04-05-2021 23:11:34.792 [main] RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 119 ms. Found 5 JPA repository interfaces.
+[INFO ] 04-05-2021 23:11:35.308 [main] TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+[INFO ] 04-05-2021 23:11:35.317 [main] Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+[INFO ] 04-05-2021 23:11:35.317 [main] StandardService - Starting service [Tomcat]
+[INFO ] 04-05-2021 23:11:35.317 [main] StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.43]
+[INFO ] 04-05-2021 23:11:35.451 [main] [/] - Initializing Spring embedded WebApplicationContext
+[INFO ] 04-05-2021 23:11:35.451 [main] ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1502 ms
+[INFO ] 04-05-2021 23:11:35.605 [main] LogHelper - HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+[INFO ] 04-05-2021 23:11:35.687 [main] Version - HHH000412: Hibernate Core {5.2.9.Final}
+[INFO ] 04-05-2021 23:11:35.689 [main] Environment - HHH000206: hibernate.properties not found
+[INFO ] 04-05-2021 23:11:35.727 [main] Version - HCANN000001: Hibernate Commons Annotations {5.0.1.Final}
+[INFO ] 04-05-2021 23:11:35.856 [main] HikariDataSource - HikariPool-1 - Starting...
+[INFO ] 04-05-2021 23:11:36.017 [main] HikariDataSource - HikariPool-1 - Start completed.
+[INFO ] 04-05-2021 23:11:36.031 [main] Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
+[WARN ] 04-05-2021 23:11:36.257 [main] RootClass - HHH000038: Composite-id class does not override equals(): pt.ist.stdf.HighlyDependableTracker.Model.ClientEpochId
+[WARN ] 04-05-2021 23:11:36.258 [main] RootClass - HHH000039: Composite-id class does not override hashCode(): pt.ist.stdf.HighlyDependableTracker.Model.ClientEpochId
+[DEBUG] 04-05-2021 23:11:36.623 [main] SQL - alter table server_client_epochs add constraint FKja97ifdwli1fxdo81jlephk9u foreign key (client_id) references server_clients (client_id)
+[DEBUG] 04-05-2021 23:11:36.645 [main] SQL - alter table server_client_epochs add constraint FKh23la57sv840afh5hn0i1hgqn foreign key (epoch_id) references server_epochs (epoch_id)
+[INFO ] 04-05-2021 23:11:36.661 [main] LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+[INFO ] 04-05-2021 23:11:37.040 [main] QueryTranslatorFactoryInitiator - HHH000397: Using ASTQueryTranslatorFactory
+[WARN ] 04-05-2021 23:11:37.280 [main] JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[INFO ] 04-05-2021 23:11:37.394 [main] ThreadPoolTaskExecutor - Initializing ExecutorService 'applicationTaskExecutor'
+[INFO ] 04-05-2021 23:11:37.628 [main] Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+[INFO ] 04-05-2021 23:11:37.660 [main] TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+[INFO ] 04-05-2021 23:11:37.672 [main] SimulationMain - Started SimulationMain in 4.286 seconds (JVM running for 5.461)
+[DEBUG] 04-05-2021 23:11:37.694 [main] SQL - delete from server_client_epochs where x<>-1
+[DEBUG] 04-05-2021 23:11:37.732 [main] SQL - select simulateds0_.id as id1_3_, simulateds0_.private_key as private_2_3_, simulateds0_.public_key as public_k3_3_ from simulated_servers simulateds0_
+[DEBUG] 04-05-2021 23:11:37.741 [main] SQL - select simulatedu0_.id as id1_4_, simulatedu0_.private_key as private_2_4_, simulatedu0_.public_key as public_k3_4_ from simulated_users simulatedu0_
+[DEBUG] 04-05-2021 23:11:37.772 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 23:11:37.775 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 23:11:37.776 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 23:11:37.777 [main] SQL - delete from simulated_users where id=?
+[DEBUG] 04-05-2021 23:11:37.783 [main] SQL - select client0_.client_id as client_i1_1_, client0_.public_key as public_k2_1_, client0_.shared_key as shared_k3_1_ from server_clients client0_
+[DEBUG] 04-05-2021 23:11:37.787 [main] SQL - select epoch0_.epoch_id as epoch_id1_2_ from server_epochs epoch0_
+[DEBUG] 04-05-2021 23:11:38.122 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 23:11:38.140 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 23:11:38.953 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 23:11:38.954 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 23:11:39.439 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 23:11:39.441 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 23:11:40.170 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 23:11:40.172 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)
+[DEBUG] 04-05-2021 23:11:40.493 [main] SQL - select simulatedu0_.id as id1_4_0_, simulatedu0_.private_key as private_2_4_0_, simulatedu0_.public_key as public_k3_4_0_ from simulated_users simulatedu0_ where simulatedu0_.id=?
+[DEBUG] 04-05-2021 23:11:40.494 [main] SQL - insert into simulated_users (private_key, public_key, id) values (?, ?, ?)

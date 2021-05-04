@@ -1,0 +1,110 @@
+-> length + ...
+
+submitLocationReport
+{
+userId,
+msgType,//3:Report Submission
+msgData{
+	epoch,	
+	position,
+	num_reports,//maybe nt needed
+	reports {
+		msg, msg, msg}}
+}
+submitSharedKey{
+userId,
+msgType
+msgData{
+sharedKey
+}
+}
+obtainLocationReport{
+userId,
+msgType:1,
+msgData{
+epoch
+}
+}
+[SERVER]
+obtainLocationReportResponse{
+userId,
+msgType:6
+msgData{
+epoch
+position}
+}
+obtainLocationReportHA{
+userId,
+msgType:4,
+msgData{
+epoch,
+userId
+}
+}
+[SERVER]
+obtainLocationReportHAResponse{
+userId,
+msgType:8
+msgData{
+epoch,
+userId,
+position
+}
+}
+obtainUsersAtLocation{
+userId,
+msgType:2
+msgData{
+epoch,
+position
+}
+}
+[SERVER]
+obtainUsersAtLocationResponse{
+userId,
+msgType:7
+msgData{
+epoch,
+position,
+users: []
+}
+}
+
+
+//////////////////////Messages between users//////////////////////
+
+
+{
+msgType,//0:Request for validation//1:Response to validation
+userId,
+msgData{
+	(...)
+}
+
+
+------------------------>Request Message<------------------------
+{
+
+msgType:0,
+userId,
+msgData{
+	time,
+	position
+}
+reports[]
+------------------------------------------------------------------
+
+------------------------>Response Message<------------------------
+{
+
+msgType:1,
+userId,
+msgData{
+	singature,
+}
+
+------------------------------------------------------------------
+
+
+
+//////////////////////////////////////////////////////////////////
